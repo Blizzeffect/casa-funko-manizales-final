@@ -1,5 +1,6 @@
 'use client';
 
+import { supabase } from '@/lib/supabase';
 import { goToWompiCheckout } from '@/lib/wompi';
 
 interface CartProps {
@@ -8,9 +9,10 @@ interface CartProps {
 }
 
 export default function Cart({ items, onRemoveItem }: CartProps) {
-  // Total y cantidades por producto
+  // Total del carrito
   const total = items.reduce((sum: number, item: any) => sum + item.price, 0);
 
+  // Cantidades por producto
   const quantities: Record<number, number> = items.reduce(
     (acc: Record<number, number>, item: any) => {
       acc[item.id] = (acc[item.id] || 0) + 1;
@@ -18,6 +20,40 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
     },
     {}
   );
+
+  const hasOverStock = items.some(
+    (item: any) => quantities[item.id] > item.stock
+  );
+
+  async function createOrderAndPay() {
+    if (items.length === 0) return;
+    if (hasOverStock) return;
+
+    const reference = `casafunko-${Date.now()}`;
+
+    const orderItems = items.map((item: any) => ({
+      product_id: item.id,
+      name: item.name,
+      price: item.price,
+      qty: 1, // cada entrada del carrito representa 1 unidad
+    }));
+
+    const { error } = await supabase.from('orders').insert([
+      {
+        reference,
+        total_amount: total,
+        items: orderItems,
+        status: 'pending',
+      },
+    ]);
+
+    if (error) {
+      console.error('Error creating order:', error);
+      return;
+    }
+
+    goToWompiCheckout(total, reference);
+  }
 
   return (
     <div
@@ -85,13 +121,22 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
             </div>
 
             <button
-              onClick={() => goToWompiCheckout(total)}
-              className="w-full py-3 bg-gradient-to-r from-cyan-500 to-yellow-400 text-black font-mono font-bold hover:from-cyan-600 hover:to-yellow-500 transition-all"
-              style={{
-                boxShadow: '0 0 20px rgba(0, 212, 255, 0.5)',
-              }}
+              onClick={createOrderAndPay}
+              disabled={hasOverStock}
+              className={`w-full py-3 font-mono font-bold transition-all
+                ${
+                  hasOverStock
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-cyan-500 to-yellow-400 text-black hover:from-cyan-600 hover:to-yellow-500'
+                }
+              `}
+              style={
+                !hasOverStock
+                  ? { boxShadow: '0 0 20px rgba(0, 212, 255, 0.5)' }
+                  : {}
+              }
             >
-              {`>>`} CHECKOUT CON WOMPI
+              {hasOverStock ? 'AJUSTA CANTIDADES' : '>> CHECKOUT CON WOMPI'}
             </button>
           </div>
 
