@@ -1,7 +1,6 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { goToWompiCheckout } from '@/lib/wompi';
 
 interface CartProps {
   items: any[];
@@ -9,10 +8,8 @@ interface CartProps {
 }
 
 export default function Cart({ items, onRemoveItem }: CartProps) {
-  // Total del carrito
   const total = items.reduce((sum: number, item: any) => sum + item.price, 0);
 
-  // Cantidades por producto
   const quantities: Record<number, number> = items.reduce(
     (acc: Record<number, number>, item: any) => {
       acc[item.id] = (acc[item.id] || 0) + 1;
@@ -35,7 +32,7 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
       product_id: item.id,
       name: item.name,
       price: item.price,
-      qty: 1, // cada entrada del carrito representa 1 unidad
+      qty: 1,
     }));
 
     const { error } = await supabase.from('orders').insert([
@@ -52,7 +49,27 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
       return;
     }
 
-    goToWompiCheckout(total, reference);
+    const resp = await fetch('/api/mercadopago', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        reference,
+        items: orderItems,
+      }),
+    });
+
+    if (!resp.ok) {
+      console.error('Error creating Mercado Pago preference');
+      return;
+    }
+
+    const data = await resp.json();
+    if (!data.init_point) {
+      console.error('No init_point from Mercado Pago');
+      return;
+    }
+
+    window.location.href = data.init_point;
   }
 
   return (
@@ -136,12 +153,14 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
                   : {}
               }
             >
-              {hasOverStock ? 'AJUSTA CANTIDADES' : '>> CHECKOUT CON WOMPI'}
+              {hasOverStock
+                ? 'AJUSTA CANTIDADES'
+                : '>> CHECKOUT CON MERCADO PAGO'}
             </button>
           </div>
 
           <p className="text-xs text-cyan-400/50 text-center font-mono">
-            Serás redirigido al WebCheckout seguro de Wompi.
+            Serás redirigido al Checkout Pro seguro de Mercado Pago.
           </p>
         </>
       )}
