@@ -50,21 +50,43 @@ export default function NewProductPage() {
     try {
       setIsSubmitting(true);
 
-      // Próximo paso: subir imageFile a Supabase y guardar en products
-      console.log('Simulando envío de producto:', {
-        name,
-        price,
-        cost,
-        stock,
-        category,
-        description,
-        template: 'default',
-        imageFile,
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('price', String(price));
+      if (cost !== '') formData.append('cost', String(cost));
+      formData.append('stock', String(stock));
+      formData.append('category', category);
+      formData.append('description', description);
+      formData.append('template', 'default');
+      formData.append('image', imageFile);
+
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        body: formData,
       });
 
-      setMessage(
-        'Producto registrado (simulado). Luego conectamos con Supabase.'
-      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setMessage(
+          data?.error || 'Error al guardar el producto en el servidor.'
+        );
+        return;
+      }
+
+      const data = await res.json();
+      console.log('Producto creado:', data);
+
+      setMessage('Producto creado correctamente.');
+
+      // Limpiar formulario
+      setName('');
+      setPrice('');
+      setCost('');
+      setStock(1);
+      setCategory('');
+      setDescription('');
+      setImageFile(null);
+      setPreviewUrl(null);
     } catch (error) {
       console.error(error);
       setMessage('Error al guardar el producto.');
