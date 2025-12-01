@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     // Obtener la orden usando el payment_id
     const { data: order, error: fetchError } = await supabase
       .from('orders')
-      .select('id, reference, payment_id')
+      .select('id, reference, payment_id, status, items')
       .eq('payment_id', paymentId)
       .single();
 
@@ -116,6 +116,29 @@ export async function POST(request: Request) {
         JSON.stringify({ success: true }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Actualizar el stock si la orden pasa a estado "paid" y no estaba pagada antes
+    if (order.status !== 'paid' && orderStatus === 'paid') {
+      console.log('📦 Updating stock for order:', order.reference);
+      const items = order.items as any[];
+
+      for (const item of items) {
+        const { data: product } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.product_id)
+          .single();
+
+        if (product) {
+          const newStock = Math.max(0, product.stock - item.qty);
+          await supabase
+            .from('products')
+            .update({ stock: newStock })
+            .eq('id', item.product_id);
+          console.log(`📉 Stock updated for product ${item.product_id}: ${product.stock} -> ${newStock}`);
+        }
+      }
     }
 
     // Actualizar el estado de la orden

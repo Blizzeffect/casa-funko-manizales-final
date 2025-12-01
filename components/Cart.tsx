@@ -87,22 +87,13 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
   }
 
   return (
-    <div
-      className="border-2 border-yellow-400 bg-black p-4"
-      style={{
-        boxShadow:
-          '0 0 20px rgba(255, 255, 0, 0.3), inset 0 0 10px rgba(255, 255, 0, 0.1)',
-      }}
-    >
-      <h2 className="text-lg font-mono font-bold text-yellow-400 mb-4 border-b-2 border-yellow-400/30 pb-2">
-        {`🛒 CARRITO (${items.length})`}
-      </h2>
-
-      <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
+    <div className="space-y-6">
+      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
         {items.length === 0 ? (
-          <p className="text-cyan-400/50 text-sm font-mono text-center py-4">
-            Carrito vacío
-          </p>
+          <div className="text-center py-12 text-gray-500">
+            <div className="text-4xl mb-2">🛒</div>
+            <p>Tu carrito está vacío</p>
+          </div>
         ) : (
           uniqueItemIds.map((id) => {
             const group = groupedItems[id];
@@ -113,41 +104,45 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
             return (
               <div
                 key={item.id}
-                className="p-2 border-l-2 border-cyan-500 pl-3 bg-black/50 text-sm font-mono"
+                className="bg-dark p-4 rounded-lg border border-gray-800 flex gap-4"
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="text-cyan-300 truncate">{item.name}</p>
-                    <p className="text-yellow-400">
-                      ${(item.price * qty).toLocaleString('es-CO')}
-                    </p>
+                <div className="w-20 h-20 bg-dark-2 rounded overflow-hidden flex-shrink-0">
+                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                </div>
 
-                    <div className="flex items-center gap-2 mt-2">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white truncate mb-1">{item.name}</h3>
+                  <p className="text-magenta font-bold mb-2">
+                    ${(item.price * qty).toLocaleString('es-CO')}
+                  </p>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center bg-dark-2 rounded-lg border border-gray-700">
                       <button
                         onClick={() => onRemoveItem(group[0].cartId)}
-                        className="w-6 h-6 flex items-center justify-center border border-cyan-500 text-cyan-500 hover:bg-cyan-500/20"
+                        className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition"
                       >
                         -
                       </button>
-                      <span className="text-white w-4 text-center">{qty}</span>
+                      <span className="w-8 text-center text-sm font-bold">{qty}</span>
                       <button
                         onClick={() => onAddItem(item)}
                         disabled={qty >= item.stock}
-                        className="w-6 h-6 flex items-center justify-center border border-cyan-500 text-cyan-500 hover:bg-cyan-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
                       >
                         +
                       </button>
-                      <span className="text-xs text-cyan-400/70 ml-2">
-                        Stock: {item.stock}
-                      </span>
                     </div>
-
-                    {outOfStock && (
-                      <p className="text-[10px] text-red-400 mt-1">
-                        Stock insuficiente (Max: {item.stock})
-                      </p>
-                    )}
+                    <span className="text-xs text-gray-500">
+                      Stock: {item.stock}
+                    </span>
                   </div>
+
+                  {outOfStock && (
+                    <p className="text-xs text-red-500 mt-2 font-bold">
+                      ⚠️ Stock insuficiente (Max: {item.stock})
+                    </p>
+                  )}
                 </div>
               </div>
             );
@@ -156,40 +151,33 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       </div>
 
       {items.length > 0 && (
-        <>
-          <div className="border-t-2 border-yellow-400/30 pt-4 mb-4">
-            <div className="flex justify-between text-lg font-mono font-bold mb-4">
-              <span className="text-cyan-400">TOTAL:</span>
-              <span className="text-yellow-400">
-                ${total.toLocaleString('es-CO')}
-              </span>
-            </div>
-
-            <button
-              onClick={createOrderAndPay}
-              disabled={hasOverStock}
-              className={`w-full py-3 font-mono font-bold transition-all
-                ${hasOverStock
-                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-cyan-500 to-yellow-400 text-black hover:from-cyan-600 hover:to-yellow-500'
-                }
-              `}
-              style={
-                !hasOverStock
-                  ? { boxShadow: '0 0 20px rgba(0, 212, 255, 0.5)' }
-                  : {}
-              }
-            >
-              {hasOverStock
-                ? 'AJUSTA CANTIDADES'
-                : '>> CHECKOUT CON MERCADO PAGO'}
-            </button>
+        <div className="border-t border-gray-800 pt-6">
+          <div className="flex justify-between text-xl font-heading font-bold mb-6">
+            <span className="text-gray-400">Total</span>
+            <span className="text-white">
+              ${total.toLocaleString('es-CO')}
+            </span>
           </div>
 
-          <p className="text-xs text-cyan-400/50 text-center font-mono">
-            Serás redirigido al Checkout Pro seguro de Mercado Pago.
+          <button
+            onClick={createOrderAndPay}
+            disabled={hasOverStock}
+            className={`w-full py-4 rounded-lg font-bold transition-all shadow-lg
+              ${hasOverStock
+                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-magenta to-purple text-white hover:opacity-90 hover:shadow-[0_0_20px_rgba(255,0,110,0.4)]'
+              }
+            `}
+          >
+            {hasOverStock
+              ? 'AJUSTA CANTIDADES'
+              : 'PAGAR CON MERCADO PAGO'}
+          </button>
+
+          <p className="text-xs text-gray-500 text-center mt-4">
+            🔒 Pago seguro procesado por Mercado Pago
           </p>
-        </>
+        </div>
       )}
     </div>
   );
