@@ -79,12 +79,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className="relative w-24 h-24 group-hover:scale-110 transition-transform duration-300">
+            <div className="relative w-32 h-32 group-hover:scale-110 transition-transform duration-300">
               <Image
                 src="/logo.png"
                 alt="Casa Funko Colombia"
                 fill
-                className="object-contain drop-shadow-[0_0_15px_rgba(0,255,255,0.6)]"
+                className="object-contain drop-shadow-[0_0_5px_rgba(0,255,255,0.8)]"
                 priority
               />
             </div>
