@@ -37,12 +37,12 @@ export default function Toast({ message, product, isVisible, onClose, onViewCart
                     className="bg-black/95 border-b-2 border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
                     style={{ backdropFilter: 'blur(8px)' }}
                 >
-                    <div className="max-w-7xl mx-auto p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="max-w-7xl mx-auto p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
 
                         {/* Left Side: Message & Product */}
-                        <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <div className="flex items-center gap-6 w-full sm:w-auto">
                             {product && (
-                                <div className="w-12 h-12 bg-white/10 rounded overflow-hidden flex-shrink-0">
+                                <div className="w-20 h-20 bg-white/10 rounded overflow-hidden flex-shrink-0">
                                     <img
                                         src={product.image_url}
                                         alt={product.name}
@@ -51,12 +51,12 @@ export default function Toast({ message, product, isVisible, onClose, onViewCart
                                 </div>
                             )}
                             <div className="flex-1">
-                                <h4 className="text-green-400 font-mono font-bold text-sm flex items-center gap-2">
-                                    <span className="bg-green-500 text-black rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</span>
+                                <h4 className="text-green-400 font-mono font-bold text-lg flex items-center gap-3">
+                                    <span className="bg-green-500 text-black rounded-full w-6 h-6 flex items-center justify-center text-sm">✓</span>
                                     {message}
                                 </h4>
                                 {product && (
-                                    <p className="text-gray-300 text-xs truncate max-w-[200px] sm:max-w-md mt-1">
+                                    <p className="text-gray-300 text-base truncate max-w-[200px] sm:max-w-lg mt-2">
                                         {product.name}
                                     </p>
                                 )}
@@ -64,19 +64,19 @@ export default function Toast({ message, product, isVisible, onClose, onViewCart
                         </div>
 
                         {/* Right Side: Actions */}
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <div className="flex items-center gap-4 w-full sm:w-auto">
                             <button
                                 onClick={() => {
                                     onViewCart();
                                     onClose();
                                 }}
-                                className="flex-1 sm:flex-none bg-yellow-400 text-black text-sm font-bold py-2 px-6 rounded hover:bg-yellow-300 transition-colors font-mono whitespace-nowrap"
+                                className="flex-1 sm:flex-none bg-yellow-400 text-black text-base font-bold py-3 px-8 rounded hover:bg-yellow-300 transition-colors font-mono whitespace-nowrap"
                             >
                                 VER CARRITO
                             </button>
                             <button
                                 onClick={onClose}
-                                className="flex-1 sm:flex-none border border-gray-600 text-gray-300 text-sm py-2 px-4 rounded hover:border-gray-400 hover:text-white transition-colors font-mono whitespace-nowrap"
+                                className="flex-1 sm:flex-none border border-gray-600 text-gray-300 text-base py-3 px-6 rounded hover:border-gray-400 hover:text-white transition-colors font-mono whitespace-nowrap"
                             >
                                 SEGUIR COMPRANDO
                             </button>
