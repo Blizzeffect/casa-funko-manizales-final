@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Product, CartItem } from '@/types';
+import { Product, CartItem, Post } from '@/types';
 import Toast from '@/components/Toast';
 import Cart from '@/components/Cart';
 
 export default function BlogPage() {
     const [products, setProducts] = useState<Product[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
     const [cartOpen, setCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [toast, setToast] = useState<{ visible: boolean; product?: Product }>({ visible: false });
@@ -15,13 +16,18 @@ export default function BlogPage() {
     const [scrolled, setScrolled] = useState(0);
     const [navbarBg, setNavbarBg] = useState(false);
 
-    // Fetch Products
+    // Fetch Products & Posts
     useEffect(() => {
-        const fetchProducts = async () => {
-            const { data } = await supabase.from('products').select('*').limit(4);
-            if (data) setProducts(data);
+        const fetchData = async () => {
+            // Products
+            const { data: productsData } = await supabase.from('products').select('*').limit(4);
+            if (productsData) setProducts(productsData);
+
+            // Posts
+            const { data: postsData } = await supabase.from('posts').select('*').order('published_at', { ascending: false });
+            if (postsData) setPosts(postsData);
         };
-        fetchProducts();
+        fetchData();
     }, []);
 
     // Scroll Progress & Navbar
@@ -202,80 +208,46 @@ export default function BlogPage() {
 
                     <div className="grid md:grid-cols-3 gap-8 mb-12">
 
-                        {/* Card 1 */}
-                        <div className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group">
-                            <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark">
-                                <div className="w-full h-full bg-gradient-to-br from-magenta/50 to-cyan/50 flex items-center justify-center text-4xl">
-                                    🎮
+                        {posts.length > 0 ? (
+                            posts.map((post) => (
+                                <div key={post.id} className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group">
+                                    <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark">
+                                        {post.image_url ? (
+                                            <img
+                                                src={post.image_url}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-magenta/50 to-cyan/50 flex items-center justify-center text-4xl">
+                                                📝
+                                            </div>
+                                        )}
+                                        <div className="absolute top-4 left-4">
+                                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan/20 text-cyan">{post.category}</span>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2 line-clamp-2 font-heading group-hover:text-magenta transition-colors">
+                                        {post.title}
+                                    </h3>
+                                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                                        {post.excerpt}
+                                    </p>
+                                    <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                                        <span>⏱️ {post.reading_time}</span>
+                                        <time>{new Date(post.published_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}</time>
+                                    </div>
+                                    <div className="text-magenta font-bold group-hover:text-cyan transition-colors">
+                                        → Leer Artículo
+                                    </div>
                                 </div>
-                                <div className="absolute top-4 left-4">
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan/20 text-cyan">Gaming</span>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="col-span-3 text-center text-gray-500 py-12">
+                                <p>Cargando artículos...</p>
                             </div>
-                            <h3 className="text-xl font-bold mb-2 line-clamp-2 font-heading group-hover:text-magenta transition-colors">
-                                Cómo organizar una habitación gaming con Funko Pops
-                            </h3>
-                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                                Guía completa para decorar tu espacio gaming con estilo y funcionalidad
-                            </p>
-                            <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                                <span>⏱️ 8 min lectura</span>
-                                <time>15 dic</time>
-                            </div>
-                            <div className="text-magenta font-bold group-hover:text-cyan transition-colors">
-                                → Leer Artículo
-                            </div>
-                        </div>
+                        )}
 
-                        {/* Card 2 */}
-                        <div className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group">
-                            <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark">
-                                <div className="w-full h-full bg-gradient-to-br from-purple/50 to-magenta/50 flex items-center justify-center text-4xl">
-                                    💎
-                                </div>
-                                <div className="absolute top-4 left-4">
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-magenta/20 text-magenta">Coleccionismo</span>
-                                </div>
-                            </div>
-                            <h3 className="text-xl font-bold mb-2 line-clamp-2 font-heading group-hover:text-magenta transition-colors">
-                                Top 10 Funko Pops más valiosos en 2025
-                            </h3>
-                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                                Descubre cuáles son las figuras más cotizadas y por qué
-                            </p>
-                            <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                                <span>⏱️ 12 min lectura</span>
-                                <time>12 dic</time>
-                            </div>
-                            <div className="text-magenta font-bold group-hover:text-cyan transition-colors">
-                                → Leer Artículo
-                            </div>
-                        </div>
-
-                        {/* Card 3 */}
-                        <div className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group">
-                            <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark">
-                                <div className="w-full h-full bg-gradient-to-br from-cyan/50 to-green/50 flex items-center justify-center text-4xl">
-                                    💡
-                                </div>
-                                <div className="absolute top-4 left-4">
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan/20 text-cyan">Diseño</span>
-                                </div>
-                            </div>
-                            <h3 className="text-xl font-bold mb-2 line-clamp-2 font-heading group-hover:text-magenta transition-colors">
-                                Iluminación LED perfecta para tu colección
-                            </h3>
-                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                                Guía de tipos de luces y cómo instalarlas profesionalmente
-                            </p>
-                            <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                                <span>⏱️ 10 min lectura</span>
-                                <time>10 dic</time>
-                            </div>
-                            <div className="text-magenta font-bold group-hover:text-cyan transition-colors">
-                                → Leer Artículo
-                            </div>
-                        </div>
                     </div>
 
                     <div className="text-center">

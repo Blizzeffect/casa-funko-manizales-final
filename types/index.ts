@@ -22,13 +22,22 @@ export interface OrderItem {
 
 export interface Order {
   id: number;
-  reference: string;
+  mp_preference_id: string;
+  items: CartItem[];
   total_amount: number;
-  items: OrderItem[];
   status: string;
-  payment_id?: string;
-  payment_status?: string;
-  preference_id?: string;
-  created_at?: string;
-  updated_at?: string;
+  created_at: string;
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  image_url: string;
+  category: string;
+  reading_time: string;
+  published_at: string;
+  created_at: string;
 }

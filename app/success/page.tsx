@@ -64,7 +64,7 @@ function SuccessContent() {
               <div className="flex justify-between">
                 <span className="text-gray-600">Referencia:</span>
                 <span className="font-semibold text-gray-900">
-                  {orderData.reference}
+                  {orderData.mp_preference_id}
                 </span>
               </div>
               <div className="flex justify-between">
