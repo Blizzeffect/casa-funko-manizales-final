@@ -71,38 +71,37 @@ export default function BlogPage() {
 
             {/* NAVIGATION */}
             <nav
-                className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navbarBg ? 'bg-black/80 backdrop-blur-md' : ''}`}
+                className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navbarBg ? 'bg-black/80 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,110,0.2)]' : 'bg-transparent'}`}
             >
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
 
                     {/* Logo */}
-                    {/* Logo */}
                     <a href="/" className="flex items-center gap-2 group">
-                        <div className="relative w-16 h-16 group-hover:scale-105 transition-transform">
+                        <div className="relative w-24 h-24 group-hover:scale-110 transition-transform duration-300">
                             <Image
                                 src="/logo.png"
                                 alt="Casa Funko Colombia"
                                 fill
-                                className="object-contain drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]"
+                                className="object-contain drop-shadow-[0_0_15px_rgba(0,255,255,0.6)]"
                             />
                         </div>
                     </a>
 
                     {/* Menu Desktop */}
                     <div className="hidden md:flex gap-8 items-center font-medium">
-                        <a href="#blog" className="text-gray-300 hover:text-cyan transition">Blog</a>
-                        <a href="#shop" className="text-gray-300 hover:text-cyan transition">Tienda</a>
-                        <a href="#gallery" className="text-gray-300 hover:text-cyan transition">Galería</a>
-                        <a href="#contact" className="text-gray-300 hover:text-cyan transition">Contacto</a>
+                        <a href="#blog" className="text-gray-300 hover:text-cyan hover:drop-shadow-[0_0_5px_rgba(0,255,255,0.8)] transition">Blog</a>
+                        <a href="#shop" className="text-gray-300 hover:text-cyan hover:drop-shadow-[0_0_5px_rgba(255,0,110,0.8)] transition">Tienda</a>
+                        <a href="#gallery" className="text-gray-300 hover:text-cyan hover:drop-shadow-[0_0_5px_rgba(0,255,255,0.8)] transition">Galería</a>
+                        <a href="#contact" className="text-gray-300 hover:text-cyan hover:drop-shadow-[0_0_5px_rgba(255,0,110,0.8)] transition">Contacto</a>
                     </div>
 
                     {/* CTA + Cart */}
                     <div className="flex gap-4 items-center">
                         <button
                             onClick={() => setCartOpen(true)}
-                            className="hidden sm:flex items-center gap-2 text-white hover:text-magenta transition"
+                            className="hidden sm:flex items-center gap-2 text-white hover:text-magenta transition hover:drop-shadow-[0_0_5px_rgba(255,0,110,0.8)]"
                         >
-                            <span>🛒</span>
+                            <span className="text-2xl">🛒</span>
                             <span className="text-sm font-bold">Carrito ({cartItems.length})</span>
                         </button>
 
@@ -150,24 +149,24 @@ export default function BlogPage() {
 
                 {/* Content */}
                 <div className="relative z-10 max-w-7xl mx-auto px-4 text-center w-full">
-                    <h1 className="mb-6 animate-fade-in font-heading text-5xl md:text-7xl font-bold leading-tight">
+                    <h1 className="mb-6 animate-fade-in font-heading text-5xl md:text-7xl font-bold leading-tight drop-shadow-[0_0_25px_rgba(255,0,110,0.5)]">
                         <span className="text-white">Tu Gaming Room,</span>
                         <br />
-                        <span className="bg-gradient-to-r from-magenta to-cyan bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-magenta to-cyan bg-clip-text text-transparent drop-shadow-none">
                             Elevada
                         </span>
                     </h1>
 
-                    <p className="text-xl md:text-2xl text-cyan mb-8 max-w-2xl mx-auto animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                    <p className="text-xl md:text-2xl text-cyan mb-8 max-w-2xl mx-auto animate-fade-in opacity-0 font-light tracking-wide drop-shadow-[0_0_10px_rgba(0,255,255,0.4)]" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                         Decora con Funko Pop, Juega sin límites
                     </p>
 
                     {/* CTAs */}
-                    <div className="flex gap-4 justify-center flex-wrap animate-fade-in opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                    <div className="flex gap-6 justify-center flex-wrap animate-fade-in opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
                         <a href="#shop" className="px-8 py-3 bg-magenta text-white rounded-lg font-bold shadow-[0_0_20px_rgba(255,0,110,0.3)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,110,0.6)] transition-all">
                             Explorar Colecciones
                         </a>
-                        <a href="#gallery" className="px-8 py-3 border-2 border-cyan text-cyan rounded-lg font-bold hover:bg-cyan hover:text-dark transition-all">
+                        <a href="#gallery" className="px-8 py-3 border-2 border-cyan text-cyan rounded-lg font-bold hover:bg-cyan hover:text-dark transition-all hover:shadow-[0_0_20px_rgba(0,255,255,0.4)]">
                             Ver Galería
                         </a>
                     </div>
