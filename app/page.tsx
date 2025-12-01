@@ -53,6 +53,7 @@ export default function Home() {
         product={toast.product}
         isVisible={toast.visible}
         onClose={() => setToast({ ...toast, visible: false })}
+        onViewCart={() => setCartOpen(true)}
       />
       {/* HEADER */}
       <header className="border-b-2 border-cyan-500 bg-black/80 backdrop-blur sticky top-0 z-40">
