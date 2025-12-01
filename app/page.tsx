@@ -48,10 +48,11 @@ export default function Home() {
       <header className="border-b-2 border-cyan-500 bg-black/80 backdrop-blur sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-yellow-400">
+            <div className="text-xl md:text-2xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-yellow-400 whitespace-nowrap">
               {'<'} CASA FUNKO {'/>'}
             </div>
-            <span className="text-xs text-cyan-500 animate-pulse">Manizales</span>
+            <span className="text-xs text-cyan-500 animate-pulse hidden sm:inline">Manizales</span>
+            <span className="text-[10px] text-cyan-500 animate-pulse sm:hidden">MZL</span>
           </div>
 
           <button
@@ -110,9 +111,20 @@ export default function Home() {
         </div>
 
         {/* CARRITO SIDEBAR */}
+        {/* CARRITO SIDEBAR / OVERLAY */}
         {cartOpen && (
-          <div className="w-80 sticky top-24">
-            <Cart items={cartItems} onRemoveItem={removeFromCart} />
+          <div className="fixed inset-0 z-50 md:static md:z-auto md:w-80 md:block bg-black/90 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 md:p-0 overflow-y-auto md:overflow-visible">
+            <div className="md:sticky md:top-24">
+              <div className="flex justify-end md:hidden mb-4">
+                <button
+                  onClick={() => setCartOpen(false)}
+                  className="px-4 py-2 border border-red-500 text-red-500 font-mono text-sm hover:bg-red-500/10"
+                >
+                  [X] CERRAR
+                </button>
+              </div>
+              <Cart items={cartItems} onRemoveItem={removeFromCart} />
+            </div>
           </div>
         )}
       </div>
