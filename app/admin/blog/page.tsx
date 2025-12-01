@@ -40,9 +40,14 @@ export default function BlogAdminPage() {
         <div className="min-h-screen bg-dark text-white p-8 font-sans">
             <div className="max-w-6xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-magenta to-cyan">
-                        Administrar Blog
-                    </h1>
+                    <div className="flex items-center gap-4">
+                        <div className="relative w-12 h-12">
+                            <Image src="/logo.png" alt="Logo" fill className="object-contain" />
+                        </div>
+                        <h1 className="text-3xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-magenta to-cyan">
+                            Administrar Blog
+                        </h1>
+                    </div>
                     <Link
                         href="/admin/blog/new"
                         className="px-6 py-3 bg-magenta text-white font-bold rounded-lg hover:bg-magenta/80 transition shadow-[0_0_15px_rgba(255,0,110,0.4)]"

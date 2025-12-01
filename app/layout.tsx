@@ -20,6 +20,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Casa Funko Manizales",
   description: "Tu tienda de Funko Pops favorita en Manizales",
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({

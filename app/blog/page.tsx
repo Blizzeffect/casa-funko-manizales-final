@@ -76,11 +76,16 @@ export default function BlogPage() {
                 <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
 
                     {/* Logo */}
-                    <a href="#" className="flex items-center gap-2 group">
-                        <div className="w-8 h-8 bg-magenta rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <span className="text-white font-bold text-sm">CF</span>
+                    {/* Logo */}
+                    <a href="/" className="flex items-center gap-2 group">
+                        <div className="relative w-16 h-16 group-hover:scale-105 transition-transform">
+                            <Image
+                                src="/logo.png"
+                                alt="Casa Funko Colombia"
+                                fill
+                                className="object-contain drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]"
+                            />
                         </div>
-                        <span className="text-white font-bold hidden sm:inline font-heading">CasaFunko</span>
                     </a>
 
                     {/* Menu Desktop */}
