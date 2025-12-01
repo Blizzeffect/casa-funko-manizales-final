@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Product, CartItem, Post } from '@/types';
 import Toast from '@/components/Toast';
 import Cart from '@/components/Cart';
+import Image from 'next/image';
 
 export default function BlogPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -213,10 +214,11 @@ export default function BlogPage() {
                                 <div key={post.id} className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group">
                                     <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark">
                                         {post.image_url ? (
-                                            <img
+                                            <Image
                                                 src={post.image_url}
                                                 alt={post.title}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                                fill
+                                                className="object-cover group-hover:scale-110 transition-transform duration-300"
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-gradient-to-br from-magenta/50 to-cyan/50 flex items-center justify-center text-4xl">
@@ -344,10 +346,11 @@ export default function BlogPage() {
                         {products.map((product) => (
                             <div key={product.id} className="bg-dark-2 rounded-xl p-6 shadow-lg group hover:-translate-y-2 transition-transform duration-300">
                                 <div className="relative h-56 mb-4 overflow-hidden rounded-lg bg-dark flex items-center justify-center">
-                                    <img
+                                    <Image
                                         src={product.image_url}
                                         alt={product.name}
-                                        className="h-full object-contain group-hover:scale-110 transition-transform duration-300"
+                                        fill
+                                        className="object-contain group-hover:scale-110 transition-transform duration-300 p-4"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 mb-2">

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Product, CartItem, Post } from '@/types';
 import Toast from '@/components/Toast';
 import Cart from '@/components/Cart';
+import Image from 'next/image';
 
 export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     // Unwrap params using React.use()
@@ -146,10 +147,11 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             <header className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden pt-20">
                 <div className="absolute inset-0 z-0">
                     {post.image_url ? (
-                        <img
+                        <Image
                             src={post.image_url}
                             alt={post.title}
-                            className="w-full h-full object-cover opacity-40"
+                            fill
+                            className="object-cover opacity-40"
                         />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-magenta/20 via-purple/10 to-cyan/20" />
@@ -195,10 +197,11 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                         {products.map((product) => (
                             <div key={product.id} className="bg-dark rounded-xl p-6 shadow-lg group hover:-translate-y-2 transition-transform duration-300 border border-gray-800 hover:border-magenta/50">
                                 <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark-2 flex items-center justify-center">
-                                    <img
+                                    <Image
                                         src={product.image_url}
                                         alt={product.name}
-                                        className="h-full object-contain group-hover:scale-110 transition-transform duration-300"
+                                        fill
+                                        className="object-contain group-hover:scale-110 transition-transform duration-300 p-4"
                                     />
                                 </div>
                                 <h3 className="font-bold mb-2 font-heading truncate">{product.name}</h3>

@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { CartItem, Product } from '@/types';
+import Image from 'next/image';
 
 interface CartProps {
   items: CartItem[];
@@ -106,8 +107,8 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
                 key={item.id}
                 className="bg-dark p-4 rounded-lg border border-gray-800 flex gap-4"
               >
-                <div className="w-20 h-20 bg-dark-2 rounded overflow-hidden flex-shrink-0">
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                <div className="w-20 h-20 bg-dark-2 rounded overflow-hidden flex-shrink-0 relative">
+                  <Image src={item.image_url} alt={item.name} fill className="object-cover" />
                 </div>
 
                 <div className="flex-1 min-w-0">
