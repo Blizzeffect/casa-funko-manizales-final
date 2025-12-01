@@ -1,17 +1,18 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
+import { CartItem } from '@/types';
 
 interface CartProps {
-  items: any[];
-  onRemoveItem: (cartId: number) => void;
+  items: CartItem[];
+  onRemoveItem: (cartId: string) => void;
 }
 
 export default function Cart({ items, onRemoveItem }: CartProps) {
-  const total = items.reduce((sum: number, item: any) => sum + item.price, 0);
+  const total = items.reduce((sum: number, item: CartItem) => sum + item.price, 0);
 
   const quantities: Record<number, number> = items.reduce(
-    (acc: Record<number, number>, item: any) => {
+    (acc: Record<number, number>, item: CartItem) => {
       acc[item.id] = (acc[item.id] || 0) + 1;
       return acc;
     },
@@ -19,16 +20,16 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
   );
 
   const hasOverStock = items.some(
-    (item: any) => quantities[item.id] > item.stock
+    (item: CartItem) => quantities[item.id] > item.stock
   );
 
   async function createOrderAndPay() {
     if (items.length === 0) return;
     if (hasOverStock) return;
 
-    const reference = `casafunko-${Date.now()}`;
+    const reference = `casafunko-${crypto.randomUUID()}`;
 
-    const orderItems = items.map((item: any) => ({
+    const orderItems = items.map((item: CartItem) => ({
       product_id: item.id,
       name: item.name,
       price: item.price,
@@ -69,7 +70,7 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
       return;
     }
 
-    window.location.href = data.init_point;
+    window.location.assign(data.init_point);
   }
 
   return (
@@ -90,7 +91,7 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
             Carrito vacío
           </p>
         ) : (
-          items.map((item: any) => {
+          items.map((item: CartItem) => {
             const qty = quantities[item.id] || 1;
             const outOfStock = qty >= item.stock;
 
@@ -141,10 +142,9 @@ export default function Cart({ items, onRemoveItem }: CartProps) {
               onClick={createOrderAndPay}
               disabled={hasOverStock}
               className={`w-full py-3 font-mono font-bold transition-all
-                ${
-                  hasOverStock
-                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-cyan-500 to-yellow-400 text-black hover:from-cyan-600 hover:to-yellow-500'
+                ${hasOverStock
+                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-cyan-500 to-yellow-400 text-black hover:from-cyan-600 hover:to-yellow-500'
                 }
               `}
               style={

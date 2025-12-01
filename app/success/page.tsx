@@ -4,31 +4,29 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+import { Order } from '@/types';
+
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const [orderData, setOrderData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [orderData, setOrderData] = useState<Order | null>(null);
 
   useEffect(() => {
-    const paymentId = searchParams.get('payment_id');
     const externalReference = searchParams.get('external_reference');
+
+    const fetchOrderDetails = async (reference: string) => {
+      try {
+        const response = await fetch(`/api/orders/${reference}`);
+        const data = await response.json();
+        setOrderData(data);
+      } catch (error) {
+        console.error('Error fetching order:', error);
+      }
+    };
 
     if (externalReference) {
       fetchOrderDetails(externalReference);
     }
-
-    setLoading(false);
   }, [searchParams]);
-
-  const fetchOrderDetails = async (reference: string) => {
-    try {
-      const response = await fetch(`/api/orders/${reference}`);
-      const data = await response.json();
-      setOrderData(data);
-    } catch (error) {
-      console.error('Error fetching order:', error);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
@@ -72,7 +70,7 @@ function SuccessContent() {
               <div className="flex justify-between">
                 <span className="text-gray-600">Total:</span>
                 <span className="font-semibold text-gray-900">
-                  ${orderData.total}
+                  ${orderData.total_amount}
                 </span>
               </div>
               <div className="flex justify-between">

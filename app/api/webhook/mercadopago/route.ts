@@ -1,10 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { env } from '@/lib/env';
 
 // Verificar la firma del webhook
 function verifyWebhookSignature(
@@ -17,7 +13,7 @@ function verifyWebhookSignature(
     const hash = parts[1].split('=')[1];
 
     const data = `${timestamp}.${body}`;
-    const secret = process.env.MP_WEBHOOK_SECRET!;
+    const secret = env.MP_WEBHOOK_SECRET;
 
     const hmac = crypto
       .createHmac('sha256', secret)
@@ -54,7 +50,7 @@ export async function POST(request: Request) {
     console.log('🔔 Webhook received');
 
     // Verificar firma SOLO si está disponible
-    if (xSignature && process.env.MP_WEBHOOK_SECRET) {
+    if (xSignature && env.MP_WEBHOOK_SECRET) {
       if (!verifyWebhookSignature(body, xSignature)) {
         console.error('❌ Invalid webhook signature');
         return new Response(
@@ -88,6 +84,19 @@ export async function POST(request: Request) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
+
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.SUPABASE_SERVICE_ROLE_KEY
+    );
 
     const orderStatus = mapMPStatus(mpStatus);
 

@@ -4,43 +4,35 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import ProductGrid from '@/components/ProductGrid';
 import Cart from '@/components/Cart';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image_url: string;
-  stock: number;
-  description: string;
-}
+import { Product, CartItem } from '@/types';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      } else {
+        setProducts(data || []);
+      }
+    };
+
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*');
-
-    if (error) {
-      console.error('Error fetching products:', error);
-      setProducts([]);
-    } else {
-      setProducts(data || []);
-    }
-  };
-
   const addToCart = (product: Product) => {
-    setCartItems([...cartItems, { ...product, cartId: Math.random() }]);
+    setCartItems([...cartItems, { ...product, cartId: crypto.randomUUID() }]);
   };
 
-  const removeFromCart = (cartId: number) => {
+  const removeFromCart = (cartId: string) => {
     setCartItems(cartItems.filter(item => item.cartId !== cartId));
   };
 
@@ -93,11 +85,11 @@ export default function Home() {
           </h1>
 
           <p className="text-lg text-cyan-300 mb-2 font-mono">
-            // La oda a los Funkos en código limpio
+            {`// La oda a los Funkos en código limpio`}
           </p>
 
           <p className="text-yellow-400 font-mono mb-8 text-sm">
-            {'{'} pixel_art: true, anime: 'essential', vibe: 'cyberpunk' {'}'}
+            {'{'} pixel_art: true, anime: &apos;essential&apos;, vibe: &apos;cyberpunk&apos; {'}'}
           </p>
 
           <div className="flex justify-center gap-4 mb-8">

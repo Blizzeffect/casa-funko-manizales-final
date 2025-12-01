@@ -1,23 +1,16 @@
-// components/ProductGrid.tsx
-
-'use client';
+import { env } from '@/lib/env';
+import { Product } from '@/types';
 
 const TEMPLATE_BACKGROUND_URLS: Record<string, string> = {
-  default:
-    'https://kcesbopmsmbbxczkooay.supabase.co/storage/v1/object/public/funkos/templates/default.png',
+  default: env.NEXT_PUBLIC_SUPABASE_STORAGE_URL,
 };
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image_url: string;
-  stock: number;
-  description: string;
-  template?: string | null;
+interface ProductGridProps {
+  products: Product[];
+  onAddToCart: (product: Product) => void;
 }
 
-export default function ProductGrid({ products, onAddToCart }: any) {
+export default function ProductGrid({ products, onAddToCart }: ProductGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8">
       {products.map((product: Product) => {

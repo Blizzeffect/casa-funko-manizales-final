@@ -1,10 +1,7 @@
 ﻿import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
+import { env } from '@/lib/env';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 function verifyWebhookSignature(body: string, xSignature: string): boolean {
   try {
@@ -12,7 +9,7 @@ function verifyWebhookSignature(body: string, xSignature: string): boolean {
     const timestamp = parts[0].split('=')[1];
     const hash = parts[1].split('=')[1];
     const data = `${timestamp}.${body}`;
-    const secret = process.env.MP_WEBHOOK_SECRET!;
+    const secret = env.MP_WEBHOOK_SECRET;
     const hmac = crypto.createHmac('sha256', secret).update(data).digest('base64');
     return hmac === hash;
   } catch (error) {
@@ -40,7 +37,7 @@ export async function POST(request: Request) {
     const body = await request.text();
     const xSignature = request.headers.get('x-signature');
 
-    if (xSignature && process.env.MP_WEBHOOK_SECRET) {
+    if (xSignature && env.MP_WEBHOOK_SECRET) {
       if (!verifyWebhookSignature(body, xSignature)) {
         return new Response(JSON.stringify({ error: 'Invalid signature' }), { status: 401 });
       }
@@ -57,6 +54,16 @@ export async function POST(request: Request) {
     if (!paymentId) {
       return new Response(JSON.stringify({ error: 'No payment ID' }), { status: 400 });
     }
+
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+      return new Response(JSON.stringify({ error: 'Server config error' }), { status: 500 });
+    }
+
+    const supabase = createClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.SUPABASE_SERVICE_ROLE_KEY
+    );
 
     const orderStatus = mapMPStatus(mpStatus);
 

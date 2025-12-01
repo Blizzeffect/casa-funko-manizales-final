@@ -1,37 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { createClient } from '@supabase/supabase-js';
+import { env } from '@/lib/env';
 
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN!,
+  accessToken: env.MP_ACCESS_TOKEN,
 });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { items, reference } = body;
 
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+      return NextResponse.json({ error: 'server-config-error' }, { status: 500 });
+    }
+
+    const supabase = createClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
     const preference = new Preference(client);
 
     const result = await preference.create({
       body: {
-        items: items.map((item: any) => ({
+        items: items.map((item: { name: string; price: number; qty: number }) => ({
           title: item.name,
           unit_price: item.price,
           quantity: item.qty,
           currency_id: 'COP',
         })),
         external_reference: reference,
-        notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook/mercadopago`,
+        notification_url: `${env.NEXT_PUBLIC_APP_URL}/api/webhook/mercadopago`,
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
-          failure: `${process.env.NEXT_PUBLIC_APP_URL}/failure`,
-          pending: `${process.env.NEXT_PUBLIC_APP_URL}/pending`,
+          success: `${env.NEXT_PUBLIC_APP_URL}/success`,
+          failure: `${env.NEXT_PUBLIC_APP_URL}/failure`,
+          pending: `${env.NEXT_PUBLIC_APP_URL}/pending`,
         },
         auto_return: 'approved',
       },
