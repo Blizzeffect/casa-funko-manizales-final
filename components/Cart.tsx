@@ -136,7 +136,7 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
         items: finalItems,
         status: 'pending',
         courier: selectedCourier.name,
-        // customer_details: customerDetails, // Testing if this is the cause
+        customer_details: customerDetails,
       };
 
       console.log('Sending payload to Supabase:', payload);
@@ -159,7 +159,8 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
           payer: {
             name: customerDetails.name,
             email: customerDetails.email,
-            phone: { number: customerDetails.phone }
+            phone: { number: customerDetails.phone },
+            address: { street_name: customerDetails.address }
           }
         }),
       });
@@ -261,173 +262,196 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       {items.length > 0 && (
         <div className="border-t border-gray-800 pt-6 space-y-6">
 
-          {/* Customer Details Form */}
-          <div className="bg-dark p-4 rounded-lg border border-gray-800 space-y-3">
-            <h4 className="font-bold text-white mb-1 flex items-center gap-2">
-              <span>👤</span> Datos de Envío
-            </h4>
-            <input
-              type="text"
-              name="name"
-              placeholder="Nombre Completo"
-              value={customerDetails.name}
-              onChange={handleInputChange}
-              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Correo Electrónico"
-              value={customerDetails.email}
-              onChange={handleInputChange}
-              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Teléfono / WhatsApp"
-              value={customerDetails.phone}
-              onChange={handleInputChange}
-              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-            />
-
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                name="department"
-                value={customerDetails.department}
-                onChange={handleInputChange}
-                className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none appearance-none"
-                disabled={shippingLocation === 'manizales'}
-              >
-                <option value="">Departamento</option>
-                {Object.keys(COLOMBIA_LOCATIONS).map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-
-              <select
-                name="city"
-                value={customerDetails.city}
-                onChange={handleInputChange}
-                className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none appearance-none"
-                disabled={!customerDetails.department || shippingLocation === 'manizales'}
-              >
-                <option value="">Ciudad</option>
-                {customerDetails.department && COLOMBIA_LOCATIONS[customerDetails.department as keyof typeof COLOMBIA_LOCATIONS]?.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
-
-            <input
-              type="text"
-              name="address"
-              placeholder="Dirección Exacta (Calle, Carrera, #, Apto)"
-              value={customerDetails.address}
-              onChange={handleInputChange}
-              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-            />
-          </div>
-
-          {/* Shipping Section */}
+          {/* 1. Location Selector (First Step) */}
           <div className="bg-dark p-4 rounded-lg border border-gray-800">
             <h4 className="font-bold text-white mb-3 flex items-center gap-2">
-              <span>🚚</span> Estimación de Envío
+              <span>📍</span> ¿Dónde quieres recibirlo?
             </h4>
-
-            {/* Location Selector */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2">
               <button
                 onClick={() => handleLocationChange('manizales')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition ${shippingLocation === 'manizales'
-                  ? 'bg-cyan text-black'
+                className={`flex-1 py-3 px-3 rounded-lg text-sm font-bold transition flex flex-col items-center gap-1 ${shippingLocation === 'manizales'
+                  ? 'bg-cyan text-black shadow-[0_0_15px_rgba(0,245,255,0.4)]'
                   : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
                   }`}
               >
+                <span>🏙️</span>
                 Manizales
               </button>
               <button
                 onClick={() => handleLocationChange('national')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition ${shippingLocation === 'national'
-                  ? 'bg-magenta text-white'
+                className={`flex-1 py-3 px-3 rounded-lg text-sm font-bold transition flex flex-col items-center gap-1 ${shippingLocation === 'national'
+                  ? 'bg-magenta text-white shadow-[0_0_15px_rgba(255,0,110,0.4)]'
                   : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
                   }`}
               >
-                Nacional
+                <span>🇨🇴</span>
+                Resto del País
               </button>
             </div>
+          </div>
 
-            {/* Courier Selector */}
-            {shippingLocation && (
-              <div className="space-y-2 animate-fade-in">
-                {COURIERS[shippingLocation].map((courier) => (
-                  <label
-                    key={courier.id}
-                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition ${selectedCourier?.id === courier.id
-                      ? 'border-white bg-white/5'
-                      : 'border-gray-800 hover:border-gray-600'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="courier"
-                        value={courier.id}
-                        checked={selectedCourier?.id === courier.id}
-                        onChange={() => setSelectedCourier(courier)}
-                        className="accent-magenta"
-                      />
-                      <span className="text-sm text-gray-300">{courier.name}</span>
-                    </div>
-                    <span className="text-sm font-bold text-white">
-                      {courier.price === 0 ? 'Gratis' : `$${courier.price.toLocaleString('es-CO')}`}
-                    </span>
-                  </label>
-                ))}
+          {/* 2. Customer Details & Shipping Method (Only if location selected) */}
+          {shippingLocation && (
+            <div className="bg-dark p-4 rounded-lg border border-gray-800 space-y-4 animate-fade-in">
+
+              {/* Personal Info */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-white mb-1 flex items-center gap-2">
+                  <span>👤</span> Tus Datos
+                </h4>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Nombre Completo"
+                  value={customerDetails.name}
+                  onChange={handleInputChange}
+                  className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Correo Electrónico"
+                  value={customerDetails.email}
+                  onChange={handleInputChange}
+                  className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+                />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Teléfono / WhatsApp"
+                  value={customerDetails.phone}
+                  onChange={handleInputChange}
+                  className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+                />
               </div>
-            )}
-          </div>
 
-          {/* Totals */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-400">
-              <span>Subtotal</span>
-              <span>${subtotal.toLocaleString('es-CO')}</span>
-            </div>
-            <div className="flex justify-between text-sm text-gray-400">
-              <span>Envío</span>
-              <span>${shippingCost.toLocaleString('es-CO')}</span>
-            </div>
-            <div className="flex justify-between text-xl font-heading font-bold pt-2 border-t border-gray-800">
-              <span className="text-white">Total</span>
-              <span className="text-cyan">
-                ${total.toLocaleString('es-CO')}
-              </span>
-            </div>
-          </div>
+              {/* Address Info */}
+              <div className="space-y-3 pt-2 border-t border-gray-800">
+                <h4 className="font-bold text-white mb-1 flex items-center gap-2">
+                  <span>🏠</span> Dirección de Entrega
+                </h4>
 
-          <button
-            onClick={createOrderAndPay}
-            disabled={hasOverStock || !selectedCourier || isSubmitting}
-            className={`w-full py-4 rounded-lg font-bold transition-all shadow-lg
-              ${hasOverStock || !selectedCourier || isSubmitting
-                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-magenta to-purple text-white hover:opacity-90 hover:shadow-[0_0_20px_rgba(255,0,110,0.4)]'
-              }
-            `}
-          >
-            {isSubmitting
-              ? 'PROCESANDO...'
-              : hasOverStock
-                ? 'AJUSTA CANTIDADES'
-                : !selectedCourier
-                  ? 'SELECCIONA ENVÍO'
-                  : 'PAGAR CON MERCADO PAGO'}
-          </button>
+                {/* Only show Dept/City selectors if National */}
+                {shippingLocation === 'national' && (
+                  <div className="grid grid-cols-2 gap-2 animate-fade-in">
+                    <select
+                      name="department"
+                      value={customerDetails.department}
+                      onChange={handleInputChange}
+                      className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none appearance-none"
+                    >
+                      <option value="">Departamento</option>
+                      {Object.keys(COLOMBIA_LOCATIONS).map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
 
-          <p className="text-xs text-gray-500 text-center">
-            🔒 Pago seguro procesado por Mercado Pago
-          </p>
+                    <select
+                      name="city"
+                      value={customerDetails.city}
+                      onChange={handleInputChange}
+                      className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none appearance-none"
+                      disabled={!customerDetails.department}
+                    >
+                      <option value="">Ciudad</option>
+                      {customerDetails.department && COLOMBIA_LOCATIONS[customerDetails.department as keyof typeof COLOMBIA_LOCATIONS]?.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Dirección Exacta (Calle, Carrera, #, Apto)"
+                  value={customerDetails.address}
+                  onChange={handleInputChange}
+                  className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+                />
+              </div>
+
+              {/* Courier Selection */}
+              <div className="space-y-3 pt-2 border-t border-gray-800">
+                <h4 className="font-bold text-white mb-1 flex items-center gap-2">
+                  <span>🚚</span> Método de Envío
+                </h4>
+                <div className="space-y-2">
+                  {COURIERS[shippingLocation].map((courier) => (
+                    <label
+                      key={courier.id}
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition ${selectedCourier?.id === courier.id
+                        ? 'border-white bg-white/5'
+                        : 'border-gray-800 hover:border-gray-600'
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="courier"
+                          value={courier.id}
+                          checked={selectedCourier?.id === courier.id}
+                          onChange={() => setSelectedCourier(courier)}
+                          className="accent-magenta"
+                        />
+                        <span className="text-sm text-gray-300">{courier.name}</span>
+                      </div>
+                      <span className="text-sm font-bold text-white">
+                        {courier.price === 0 ? 'Gratis' : `$${courier.price.toLocaleString('es-CO')}`}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* Totals & Button (Only if location selected) */}
+          {shippingLocation && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-gray-400">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toLocaleString('es-CO')}</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-400">
+                  <span>Envío</span>
+                  <span>${shippingCost.toLocaleString('es-CO')}</span>
+                </div>
+                <div className="flex justify-between text-xl font-heading font-bold pt-2 border-t border-gray-800">
+                  <span className="text-white">Total</span>
+                  <span className="text-cyan">
+                    ${total.toLocaleString('es-CO')}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={createOrderAndPay}
+                disabled={hasOverStock || !selectedCourier || isSubmitting}
+                className={`w-full py-4 rounded-lg font-bold transition-all shadow-lg
+                    ${hasOverStock || !selectedCourier || isSubmitting
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-magenta to-purple text-white hover:opacity-90 hover:shadow-[0_0_20px_rgba(255,0,110,0.4)]'
+                  }
+                    `}
+              >
+                {isSubmitting
+                  ? 'PROCESANDO...'
+                  : hasOverStock
+                    ? 'AJUSTA CANTIDADES'
+                    : !selectedCourier
+                      ? 'SELECCIONA ENVÍO'
+                      : 'PAGAR CON MERCADO PAGO'}
+              </button>
+
+              <p className="text-xs text-gray-500 text-center">
+                🔒 Pago seguro procesado por Mercado Pago
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
