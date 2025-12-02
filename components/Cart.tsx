@@ -1,9 +1,8 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { CartItem, Product } from '@/types';
 import Image from 'next/image';
+import { COLOMBIA_LOCATIONS } from '@/lib/locations';
 
 interface CartProps {
   items: CartItem[];
@@ -34,13 +33,15 @@ const COURIERS: Record<string, Courier[]> = {
 export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
   const [shippingLocation, setShippingLocation] = useState<ShippingLocation>(null);
   const [selectedCourier, setSelectedCourier] = useState<Courier | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [customerDetails, setCustomerDetails] = useState({
     name: '',
     email: '',
     phone: '',
-    address: '',
+    department: '',
     city: '',
+    address: '',
   });
 
   const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.price, 0);
@@ -69,11 +70,23 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
   const handleLocationChange = (location: ShippingLocation) => {
     setShippingLocation(location);
     setSelectedCourier(null); // Reset courier when location changes
+
+    // Auto-fill city if Manizales
+    if (location === 'manizales') {
+      setCustomerDetails(prev => ({ ...prev, department: 'Caldas', city: 'Manizales' }));
+    } else {
+      setCustomerDetails(prev => ({ ...prev, department: '', city: '' }));
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setCustomerDetails(prev => ({ ...prev, [name]: value }));
+
+    // Reset city if department changes
+    if (name === 'department') {
+      setCustomerDetails(prev => ({ ...prev, department: value, city: '' }));
+    }
   };
 
   async function createOrderAndPay() {
@@ -85,11 +98,12 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
     }
 
     // Validate Customer Details
-    if (!customerDetails.name || !customerDetails.email || !customerDetails.phone || !customerDetails.address || !customerDetails.city) {
+    if (!customerDetails.name || !customerDetails.email || !customerDetails.phone || !customerDetails.address || !customerDetails.city || !customerDetails.department) {
       alert('Por favor completa todos los datos de envío');
       return;
     }
 
+    setIsSubmitting(true);
     const reference = `casafunko-${crypto.randomUUID()}`;
 
     // Items de producto
@@ -115,47 +129,60 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       }
     ];
 
-    const { error } = await supabase.from('orders').insert([
-      {
-        reference,
-        total_amount: total,
-        items: finalItems,
-        status: 'pending',
-        courier: selectedCourier.name,
-        customer_details: customerDetails,
-      },
-    ]);
+    try {
+      const { error } = await supabase.from('orders').insert([
+        {
+          reference,
+          total_amount: total,
+          items: finalItems,
+          status: 'pending',
+          courier: selectedCourier.name,
+          customer_details: customerDetails,
+        },
+      ]);
 
-    if (error) {
-      console.error('Error creating order:', error);
-      return;
+      if (error) {
+        console.error('Supabase Error:', error);
+        alert('Error al guardar el pedido. Por favor intenta de nuevo.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const resp = await fetch('/api/mercadopago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reference,
+          items: finalItems,
+          payer: {
+            name: customerDetails.name,
+            email: customerDetails.email,
+            phone: { number: customerDetails.phone }
+          }
+        }),
+      });
+
+      if (!resp.ok) {
+        console.error('Mercado Pago API Error');
+        alert('Error al conectar con Mercado Pago.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const data = await resp.json();
+      if (!data.init_point) {
+        console.error('No init_point from Mercado Pago');
+        alert('Error al generar el link de pago.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      window.location.assign(data.init_point);
+    } catch (err) {
+      console.error('Unexpected Error:', err);
+      alert('Ocurrió un error inesperado.');
+      setIsSubmitting(false);
     }
-
-    const resp = await fetch('/api/mercadopago', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        reference,
-        items: finalItems,
-        payer: {
-          name: customerDetails.name,
-          email: customerDetails.email,
-        }
-      }),
-    });
-
-    if (!resp.ok) {
-      console.error('Error creating Mercado Pago preference');
-      return;
-    }
-
-    const data = await resp.json();
-    if (!data.init_point) {
-      console.error('No init_point from Mercado Pago');
-      return;
-    }
-
-    window.location.assign(data.init_point);
   }
 
   return (
@@ -261,24 +288,43 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
               onChange={handleInputChange}
               className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
             />
-            <div className="flex gap-2">
-              <input
-                type="text"
+
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                name="department"
+                value={customerDetails.department}
+                onChange={handleInputChange}
+                className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none appearance-none"
+                disabled={shippingLocation === 'manizales'}
+              >
+                <option value="">Departamento</option>
+                {Object.keys(COLOMBIA_LOCATIONS).map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+
+              <select
                 name="city"
-                placeholder="Ciudad"
                 value={customerDetails.city}
                 onChange={handleInputChange}
-                className="flex-1 bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-              />
-              <input
-                type="text"
-                name="address"
-                placeholder="Dirección Exacta"
-                value={customerDetails.address}
-                onChange={handleInputChange}
-                className="flex-[2] bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-              />
+                className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none appearance-none"
+                disabled={!customerDetails.department || shippingLocation === 'manizales'}
+              >
+                <option value="">Ciudad</option>
+                {customerDetails.department && COLOMBIA_LOCATIONS[customerDetails.department as keyof typeof COLOMBIA_LOCATIONS]?.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
             </div>
+
+            <input
+              type="text"
+              name="address"
+              placeholder="Dirección Exacta (Calle, Carrera, #, Apto)"
+              value={customerDetails.address}
+              onChange={handleInputChange}
+              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+            />
           </div>
 
           {/* Shipping Section */}
@@ -360,19 +406,21 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
 
           <button
             onClick={createOrderAndPay}
-            disabled={hasOverStock || !selectedCourier}
+            disabled={hasOverStock || !selectedCourier || isSubmitting}
             className={`w-full py-4 rounded-lg font-bold transition-all shadow-lg
-              ${hasOverStock || !selectedCourier
+              ${hasOverStock || !selectedCourier || isSubmitting
                 ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-magenta to-purple text-white hover:opacity-90 hover:shadow-[0_0_20px_rgba(255,0,110,0.4)]'
               }
             `}
           >
-            {hasOverStock
-              ? 'AJUSTA CANTIDADES'
-              : !selectedCourier
-                ? 'SELECCIONA ENVÍO'
-                : 'PAGAR CON MERCADO PAGO'}
+            {isSubmitting
+              ? 'PROCESANDO...'
+              : hasOverStock
+                ? 'AJUSTA CANTIDADES'
+                : !selectedCourier
+                  ? 'SELECCIONA ENVÍO'
+                  : 'PAGAR CON MERCADO PAGO'}
           </button>
 
           <p className="text-xs text-gray-500 text-center">
