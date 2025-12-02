@@ -26,6 +26,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
     const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+    const [isPreorder, setIsPreorder] = useState(false);
+    const [releaseDate, setReleaseDate] = useState('');
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
@@ -51,6 +53,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 setDescription(data.description || '');
                 setCurrentImageUrl(data.image_url);
                 setPreviewUrl(data.image_url);
+                setIsPreorder(data.is_preorder || false);
+                setReleaseDate(data.release_date || '');
             }
             setLoading(false);
         }
@@ -111,6 +115,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     category,
                     description,
                     image_url: imageUrl,
+                    is_preorder: isPreorder,
+                    release_date: releaseDate || null,
                 })
                 .eq('id', id);
 
@@ -257,6 +263,34 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                                 resize: 'vertical',
                             }}
                         />
+                    </div>
+
+                    {/* Pre-order Section */}
+                    <div className="bg-dark-2 p-4 rounded-lg border border-gray-800">
+                        <div className="flex items-center gap-3 mb-4">
+                            <input
+                                type="checkbox"
+                                id="is_preorder"
+                                checked={isPreorder}
+                                onChange={(e) => setIsPreorder(e.target.checked)}
+                                className="w-5 h-5 accent-magenta"
+                            />
+                            <label htmlFor="is_preorder" className="font-bold text-white cursor-pointer">
+                                ¿Es Pre-orden?
+                            </label>
+                        </div>
+
+                        {isPreorder && (
+                            <div className="animate-fade-in">
+                                <label style={labelStyle}>Fecha de Lanzamiento</label>
+                                <input
+                                    type="date"
+                                    value={releaseDate}
+                                    onChange={(e) => setReleaseDate(e.target.value)}
+                                    style={inputStyle}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Mensaje y botón */}

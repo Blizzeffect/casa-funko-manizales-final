@@ -60,13 +60,17 @@ export default function ProductGrid({ products, cartItems, onAddToCart, onRemove
                 />
               </div>
 
-              {product.stock <= 1 && product.stock > 0 && (
+              {product.is_preorder ? (
+                <div className="absolute top-2 left-2 bg-purple-600 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg z-20 animate-pulse">
+                  PRE-ORDEN
+                </div>
+              ) : product.stock <= 1 && product.stock > 0 && (
                 <div className="absolute top-2 left-2 bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg z-20">
                   ¡ÚLTIMO!
                 </div>
               )}
 
-              {product.stock === 0 && (
+              {product.stock === 0 && !product.is_preorder && (
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10 backdrop-blur-sm">
                   <div className="bg-red-600 text-white px-6 py-2 font-heading font-bold text-xl transform -rotate-12 shadow-2xl border-2 border-white">
                     AGOTADO
@@ -89,9 +93,15 @@ export default function ProductGrid({ products, cartItems, onAddToCart, onRemove
                   <p className="text-2xl font-bold text-magenta">
                     ${product.price.toLocaleString('es-CO')}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Stock: {product.stock}
-                  </p>
+                  {product.is_preorder && product.release_date ? (
+                    <p className="text-xs text-purple-400 mt-1 font-bold">
+                      Llega el: {new Date(product.release_date).toLocaleDateString()}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Stock: {product.stock}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -117,10 +127,16 @@ export default function ProductGrid({ products, cartItems, onAddToCart, onRemove
               ) : (
                 <button
                   onClick={() => onAddToCart(product)}
-                  disabled={product.stock === 0}
-                  className="w-full py-3 rounded-lg font-bold transition-all shadow-lg bg-cyan text-black hover:bg-cyan/90 hover:shadow-[0_0_15px_rgba(0,245,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:bg-gray-700 disabled:text-gray-500"
+                  disabled={product.stock === 0 && !product.is_preorder}
+                  className={`w-full py-3 rounded-lg font-bold transition-all shadow-lg 
+                    ${product.is_preorder
+                      ? 'bg-purple-600 text-white hover:bg-purple-500 hover:shadow-[0_0_15px_rgba(147,51,234,0.4)]'
+                      : 'bg-cyan text-black hover:bg-cyan/90 hover:shadow-[0_0_15px_rgba(0,245,255,0.4)]'
+                    } disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:bg-gray-700 disabled:text-gray-500`}
                 >
-                  {product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
+                  {product.is_preorder
+                    ? 'PRE-ORDENAR'
+                    : product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
                 </button>
               )}
             </div>

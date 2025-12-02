@@ -7,6 +7,8 @@ export interface Product {
   description: string;
   category?: string;
   template?: string | null;
+  is_preorder?: boolean;
+  release_date?: string | null;
 }
 
 export interface CartItem extends Product {
