@@ -327,6 +327,39 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
                 />
               </div>
 
+              {/* Courier Selection */}
+              <div className="space-y-3 pt-2 border-t border-gray-800">
+                <h4 className="font-bold text-white mb-1 flex items-center gap-2">
+                  <span>🚚</span> Método de Envío
+                </h4>
+                <div className="space-y-2">
+                  {COURIERS[shippingLocation].map((courier) => (
+                    <label
+                      key={courier.id}
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition ${selectedCourier?.id === courier.id
+                        ? 'border-white bg-white/5'
+                        : 'border-gray-800 hover:border-gray-600'
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="courier"
+                          value={courier.id}
+                          checked={selectedCourier?.id === courier.id}
+                          onChange={() => setSelectedCourier(courier)}
+                          className="accent-magenta"
+                        />
+                        <span className="text-sm text-gray-300">{courier.name}</span>
+                      </div>
+                      <span className="text-sm font-bold text-white">
+                        {courier.price === 0 ? 'Gratis' : `$${courier.price.toLocaleString('es-CO')}`}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Address Info */}
               <div className="space-y-3 pt-2 border-t border-gray-800">
                 <h4 className="font-bold text-white mb-1 flex items-center gap-2">
@@ -374,39 +407,6 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
                     className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
                   />
                 )}
-              </div>
-
-              {/* Courier Selection */}
-              <div className="space-y-3 pt-2 border-t border-gray-800">
-                <h4 className="font-bold text-white mb-1 flex items-center gap-2">
-                  <span>🚚</span> Método de Envío
-                </h4>
-                <div className="space-y-2">
-                  {COURIERS[shippingLocation].map((courier) => (
-                    <label
-                      key={courier.id}
-                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition ${selectedCourier?.id === courier.id
-                        ? 'border-white bg-white/5'
-                        : 'border-gray-800 hover:border-gray-600'
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="courier"
-                          value={courier.id}
-                          checked={selectedCourier?.id === courier.id}
-                          onChange={() => setSelectedCourier(courier)}
-                          className="accent-magenta"
-                        />
-                        <span className="text-sm text-gray-300">{courier.name}</span>
-                      </div>
-                      <span className="text-sm font-bold text-white">
-                        {courier.price === 0 ? 'Gratis' : `$${courier.price.toLocaleString('es-CO')}`}
-                      </span>
-                    </label>
-                  ))}
-                </div>
               </div>
 
             </div>
