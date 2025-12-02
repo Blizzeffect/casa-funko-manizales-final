@@ -12,13 +12,30 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-heading);
 
-  --color-magenta: #FF006E;
-  --color-cyan: #00F5FF;
-  --color-purple: #9D4EDD;
-  --color-green: #1ABC9C;
-  --color-orange: #FF9500;
-  --color-dark: #0A0E27;
-  --color-dark-2: #1A1A2E;
+  /* Semantic Colors */
+  --color-primary: #FF006E;
+  /* Magenta */
+  --color-secondary: #00F5FF;
+  /* Cyan */
+  --color-accent: #9D4EDD;
+  /* Purple */
+  --color-success: #1ABC9C;
+  /* Green */
+  --color-warning: #FF9500;
+  /* Orange */
+  --color-surface: #0A0E27;
+  /* Dark */
+  --color-surface-highlight: #1A1A2E;
+  /* Dark 2 */
+
+  /* Legacy mappings for backward compatibility during refactor */
+  --color-magenta: var(--color-primary);
+  --color-cyan: var(--color-secondary);
+  --color-purple: var(--color-accent);
+  --color-green: var(--color-success);
+  --color-orange: var(--color-warning);
+  --color-dark: var(--color-surface);
+  --color-dark-2: var(--color-surface-highlight);
 }
 
 @media (prefers-color-scheme: dark) {
