@@ -10,7 +10,9 @@ const client = new MercadoPagoConfig({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, reference } = body;
+    const { items, reference, payer } = body;
+
+    console.log('Creating MP Preference for:', items);
 
     if (!env.SUPABASE_SERVICE_ROLE_KEY) {
       console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
@@ -32,6 +34,17 @@ export async function POST(request: NextRequest) {
           quantity: item.qty,
           currency_id: 'COP',
         })),
+        payer: {
+          name: payer?.name,
+          email: payer?.email,
+          phone: {
+            area_code: '57',
+            number: payer?.phone?.number
+          },
+          address: {
+            street_name: payer?.address,
+          }
+        },
         external_reference: reference,
         notification_url: `${env.NEXT_PUBLIC_APP_URL}/api/webhook/mercadopago`,
         back_urls: {
@@ -40,6 +53,7 @@ export async function POST(request: NextRequest) {
           pending: `${env.NEXT_PUBLIC_APP_URL}/pending`,
         },
         auto_return: 'approved',
+        statement_descriptor: 'CASA FUNKO',
       },
     });
 
