@@ -8,6 +8,17 @@ import { Product, CartItem } from '@/types';
 import Toast from '@/components/Toast';
 import Image from 'next/image';
 
+'use client';
+
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import ProductGrid from '@/components/ProductGrid';
+import Cart from '@/components/Cart';
+import { Product, CartItem } from '@/types';
+import Toast from '@/components/Toast';
+import Image from 'next/image';
+import ProductFilters, { FilterState } from '@/components/ProductFilters';
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -17,22 +28,80 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(0);
   const [navbarBg, setNavbarBg] = useState(false);
 
+  // Filter State
+  const [filters, setFilters] = useState<FilterState>({
+    minPrice: '',
+    maxPrice: '',
+    category: '',
+    rarity: '',
+    search: '',
+  });
+  const [categories, setCategories] = useState<string[]>([]);
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*');
-
-      if (error) {
-        console.error('Error fetching products:', error);
-        setProducts([]);
-      } else {
-        setProducts(data || []);
-      }
-    };
-
     fetchProducts();
-  }, []);
+    fetchCategories();
+  }, [filters]); // Re-fetch when filters change
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from('products').select('category');
+    if (data) {
+      // Extract unique categories
+      const uniqueCats = Array.from(new Set(data.map(p => p.category).filter(Boolean))) as string[];
+      setCategories(uniqueCats);
+    }
+  };
+
+  const fetchProducts = async () => {
+    let query = supabase.from('products').select('*');
+
+    // Apply Filters
+    if (filters.search) {
+      query = query.ilike('name', `%${filters.search}%`);
+    }
+    if (filters.category) {
+      query = query.eq('category', filters.category);
+    }
+    if (filters.minPrice !== '') {
+      query = query.gte('price', filters.minPrice);
+    }
+    if (filters.maxPrice !== '') {
+      query = query.lte('price', filters.maxPrice);
+    }
+
+    // Rarity Filter (Client-side or complex OR logic)
+    // Since Supabase OR syntax can be tricky with other AND filters in simple query builder,
+    // we'll fetch and then filter for rarity if needed, OR use a text search on description/name
+    if (filters.rarity) {
+      // Using ilike on name or description for the rarity term
+      // Note: This might conflict with the search filter if not careful, but for now we'll chain it
+      // A better approach for "OR" across columns with "AND" for other filters requires raw SQL or advanced syntax
+      // For simplicity/robustness here, let's filter rarity client-side after fetch if the dataset is small,
+      // OR use a specific column if we had one. Let's try to add it to the query as a text match.
+      // query = query.textSearch('description', filters.rarity); // Requires FTS setup
+      // Let's stick to simple client-side filtering for rarity for now to avoid complex query errors
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching products:', error);
+      setProducts([]);
+    } else {
+      let filteredData = data || [];
+
+      // Client-side Rarity Filter
+      if (filters.rarity) {
+        const term = filters.rarity.toLowerCase();
+        filteredData = filteredData.filter(p =>
+          p.name.toLowerCase().includes(term) ||
+          (p.description && p.description.toLowerCase().includes(term))
+        );
+      }
+
+      setProducts(filteredData);
+    }
+  };
 
   // Scroll Progress & Navbar
   useEffect(() => {
@@ -171,6 +240,11 @@ export default function Home() {
       <section id="shop" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-8">
+            {/* SIDEBAR FILTERS */}
+            <aside className="w-full md:w-64 flex-shrink-0">
+              <ProductFilters onFilterChange={setFilters} categories={categories} />
+            </aside>
+
             {/* GRID PRINCIPAL */}
             <div className="flex-1">
               <div className="mb-8 flex items-center justify-between">
@@ -178,12 +252,19 @@ export default function Home() {
                 <span className="text-gray-400">{products.length} Productos</span>
               </div>
 
-              <ProductGrid
-                products={products}
-                cartItems={cartItems}
-                onAddToCart={addToCart}
-                onRemoveItem={removeFromCart}
-              />
+              {products.length > 0 ? (
+                <ProductGrid
+                  products={products}
+                  cartItems={cartItems}
+                  onAddToCart={addToCart}
+                  onRemoveItem={removeFromCart}
+                />
+              ) : (
+                <div className="text-center py-20 bg-dark-2 rounded-xl border border-gray-800">
+                  <p className="text-xl text-gray-400 mb-2">No se encontraron productos 😢</p>
+                  <p className="text-sm text-gray-500">Intenta ajustar tus filtros de búsqueda.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

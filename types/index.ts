@@ -5,6 +5,7 @@ export interface Product {
   image_url: string;
   stock: number;
   description: string;
+  category?: string;
   template?: string | null;
 }
 
