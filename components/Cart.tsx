@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { CartItem, Product } from '@/types';
 import Image from 'next/image';
@@ -10,8 +11,33 @@ interface CartProps {
   onAddItem: (product: Product) => void;
 }
 
+type ShippingLocation = 'manizales' | 'national' | null;
+
+interface Courier {
+  id: string;
+  name: string;
+  price: number;
+}
+
+const COURIERS: Record<string, Courier[]> = {
+  manizales: [
+    { id: 'local_pickup', name: 'Recogida en Tienda', price: 0 },
+    { id: 'local_delivery', name: 'Domicilio Local', price: 5000 },
+  ],
+  national: [
+    { id: 'interrapidisimo', name: 'Interrapidisimo', price: 15000 },
+    { id: 'servientrega', name: 'Servientrega', price: 18000 },
+    { id: 'coordinadora', name: 'Coordinadora', price: 16000 },
+  ],
+};
+
 export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
-  const total = items.reduce((sum: number, item: CartItem) => sum + item.price, 0);
+  const [shippingLocation, setShippingLocation] = useState<ShippingLocation>(null);
+  const [selectedCourier, setSelectedCourier] = useState<Courier | null>(null);
+
+  const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.price, 0);
+  const shippingCost = selectedCourier?.price || 0;
+  const total = subtotal + shippingCost;
 
   // Agrupar items por ID de producto
   const groupedItems = items.reduce((acc: Record<number, CartItem[]>, item: CartItem) => {
@@ -30,15 +56,22 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
     return quantity > stock;
   });
 
+  const handleLocationChange = (location: ShippingLocation) => {
+    setShippingLocation(location);
+    setSelectedCourier(null); // Reset courier when location changes
+  };
+
   async function createOrderAndPay() {
     if (items.length === 0) return;
     if (hasOverStock) return;
+    if (!selectedCourier) {
+      alert('Por favor selecciona un método de envío');
+      return;
+    }
 
     const reference = `casafunko-${crypto.randomUUID()}`;
 
-    // Para la orden, enviamos items agrupados o individuales?
-    // MercadoPago prefiere items individuales o agrupados con qty.
-    // Vamos a agruparlos para MP también.
+    // Items de producto
     const orderItems = uniqueItemIds.map((id) => {
       const group = groupedItems[id];
       const item = group[0];
@@ -50,11 +83,22 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       };
     });
 
+    // Agregar envío como item
+    const finalItems = [
+      ...orderItems,
+      {
+        product_id: 999999, // ID dummy para envío
+        name: `Envío: ${selectedCourier.name}`,
+        price: selectedCourier.price,
+        qty: 1
+      }
+    ];
+
     const { error } = await supabase.from('orders').insert([
       {
         reference,
         total_amount: total,
-        items: orderItems,
+        items: finalItems,
         status: 'pending',
       },
     ]);
@@ -69,7 +113,7 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         reference,
-        items: orderItems,
+        items: finalItems,
       }),
     });
 
@@ -89,7 +133,7 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
         {items.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <div className="text-4xl mb-2">🛒</div>
@@ -152,19 +196,90 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       </div>
 
       {items.length > 0 && (
-        <div className="border-t border-gray-800 pt-6">
-          <div className="flex justify-between text-xl font-heading font-bold mb-6">
-            <span className="text-gray-400">Total</span>
-            <span className="text-white">
-              ${total.toLocaleString('es-CO')}
-            </span>
+        <div className="border-t border-gray-800 pt-6 space-y-6">
+
+          {/* Shipping Section */}
+          <div className="bg-dark p-4 rounded-lg border border-gray-800">
+            <h4 className="font-bold text-white mb-3 flex items-center gap-2">
+              <span>🚚</span> Estimación de Envío
+            </h4>
+
+            {/* Location Selector */}
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => handleLocationChange('manizales')}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition ${shippingLocation === 'manizales'
+                    ? 'bg-cyan text-black'
+                    : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
+                  }`}
+              >
+                Manizales
+              </button>
+              <button
+                onClick={() => handleLocationChange('national')}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition ${shippingLocation === 'national'
+                    ? 'bg-magenta text-white'
+                    : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
+                  }`}
+              >
+                Nacional
+              </button>
+            </div>
+
+            {/* Courier Selector */}
+            {shippingLocation && (
+              <div className="space-y-2 animate-fade-in">
+                {COURIERS[shippingLocation].map((courier) => (
+                  <label
+                    key={courier.id}
+                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition ${selectedCourier?.id === courier.id
+                        ? 'border-white bg-white/5'
+                        : 'border-gray-800 hover:border-gray-600'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="courier"
+                        value={courier.id}
+                        checked={selectedCourier?.id === courier.id}
+                        onChange={() => setSelectedCourier(courier)}
+                        className="accent-magenta"
+                      />
+                      <span className="text-sm text-gray-300">{courier.name}</span>
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                      {courier.price === 0 ? 'Gratis' : `$${courier.price.toLocaleString('es-CO')}`}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Totals */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm text-gray-400">
+              <span>Subtotal</span>
+              <span>${subtotal.toLocaleString('es-CO')}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-400">
+              <span>Envío</span>
+              <span>${shippingCost.toLocaleString('es-CO')}</span>
+            </div>
+            <div className="flex justify-between text-xl font-heading font-bold pt-2 border-t border-gray-800">
+              <span className="text-white">Total</span>
+              <span className="text-cyan">
+                ${total.toLocaleString('es-CO')}
+              </span>
+            </div>
           </div>
 
           <button
             onClick={createOrderAndPay}
-            disabled={hasOverStock}
+            disabled={hasOverStock || !selectedCourier}
             className={`w-full py-4 rounded-lg font-bold transition-all shadow-lg
-              ${hasOverStock
+              ${hasOverStock || !selectedCourier
                 ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-magenta to-purple text-white hover:opacity-90 hover:shadow-[0_0_20px_rgba(255,0,110,0.4)]'
               }
@@ -172,10 +287,12 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
           >
             {hasOverStock
               ? 'AJUSTA CANTIDADES'
-              : 'PAGAR CON MERCADO PAGO'}
+              : !selectedCourier
+                ? 'SELECCIONA ENVÍO'
+                : 'PAGAR CON MERCADO PAGO'}
           </button>
 
-          <p className="text-xs text-gray-500 text-center mt-4">
+          <p className="text-xs text-gray-500 text-center">
             🔒 Pago seguro procesado por Mercado Pago
           </p>
         </div>
