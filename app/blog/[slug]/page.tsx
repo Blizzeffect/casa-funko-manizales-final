@@ -91,17 +91,17 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
             {/* NAVIGATION */}
             <nav
-                className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navbarBg ? 'bg-black/80 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,110,0.2)]' : 'bg-transparent'}`}
+                className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navbarBg ? 'bg-black/80 backdrop-blur-md' : ''}`}
             >
-                <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                     {/* Logo */}
                     <a href="/" className="flex items-center gap-2 group">
-                        <div className="relative w-32 h-32 group-hover:scale-110 transition-transform duration-300">
+                        <div className="relative w-16 h-16 group-hover:scale-105 transition-transform">
                             <Image
                                 src="/logo.png"
                                 alt="Casa Funko Colombia"
                                 fill
-                                className="object-contain drop-shadow-[0_0_5px_rgba(0,255,255,0.8)]"
+                                className="object-contain drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]"
                             />
                         </div>
                     </a>

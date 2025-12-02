@@ -74,17 +74,17 @@ export default function Home() {
 
       {/* NAVIGATION */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navbarBg ? 'bg-black/80 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,110,0.2)]' : 'bg-transparent'}`}
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navbarBg ? 'bg-black/80 backdrop-blur-md' : ''}`}
       >
-        <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className="relative w-32 h-32 group-hover:scale-110 transition-transform duration-300">
+            <div className="relative w-16 h-16 group-hover:scale-105 transition-transform">
               <Image
                 src="/logo.png"
                 alt="Casa Funko Colombia"
                 fill
-                className="object-contain drop-shadow-[0_0_5px_rgba(0,255,255,0.8)]"
+                className="object-contain drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]"
                 priority
               />
             </div>
@@ -92,18 +92,18 @@ export default function Home() {
 
           {/* Menu Desktop */}
           <div className="hidden md:flex gap-8 items-center font-medium">
-            <a href="/blog" className="text-gray-300 hover:text-cyan hover:drop-shadow-[0_0_5px_rgba(0,255,255,0.8)] transition">Blog</a>
-            <a href="#shop" className="text-cyan hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,0,110,0.8)] transition">Tienda</a>
-            <a href="#contact" className="text-gray-300 hover:text-cyan hover:drop-shadow-[0_0_5px_rgba(0,255,255,0.8)] transition">Contacto</a>
+            <a href="/blog" className="text-gray-300 hover:text-cyan transition">Blog</a>
+            <a href="#shop" className="text-cyan hover:text-white transition">Tienda</a>
+            <a href="#contact" className="text-gray-300 hover:text-cyan transition">Contacto</a>
           </div>
 
           {/* CTA + Cart */}
           <div className="flex gap-4 items-center">
             <button
               onClick={() => setCartOpen(true)}
-              className="hidden sm:flex items-center gap-2 text-white hover:text-magenta transition hover:drop-shadow-[0_0_5px_rgba(255,0,110,0.8)]"
+              className="hidden sm:flex items-center gap-2 text-white hover:text-magenta transition"
             >
-              <span className="text-2xl">🛒</span>
+              <span>🛒</span>
               <span className="text-sm font-bold">Carrito ({cartItems.length})</span>
             </button>
 
@@ -134,41 +134,34 @@ export default function Home() {
       </nav>
 
       {/* HERO SECTION */}
-      <section className="relative w-full h-[80vh] flex items-center justify-center overflow-hidden pt-20">
+      <section className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
-          {/* Background Image/Pattern */}
           <div
-            className="w-full h-full bg-dark"
+            className="w-full h-full bg-gradient-to-br from-magenta/20 via-purple/10 to-cyan/20"
             style={{
-              backgroundImage: `
-                radial-gradient(circle at 50% 50%, rgba(255, 0, 110, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.15) 0%, transparent 40%),
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
-              `,
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg width=%22100%22 height=%22100%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23FF006E%22 opacity=%220.05%22/%3E%3C/svg%3E")',
+              backgroundSize: '100px 100px'
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-dark/20 to-dark" />
+          <div className="absolute inset-0 bg-gradient-to-b from-dark/50 via-dark/30 to-dark/70" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center w-full">
-          <h1 className="mb-6 animate-fade-in font-heading text-6xl md:text-9xl font-bold leading-tight drop-shadow-[0_0_25px_rgba(255,0,110,0.5)]">
+          <h1 className="mb-6 animate-fade-in font-heading text-5xl md:text-8xl font-bold leading-tight">
             <span className="text-white">Colecciona</span>
             <br />
-            <span className="bg-gradient-to-r from-magenta via-purple to-cyan bg-clip-text text-transparent drop-shadow-none">
+            <span className="bg-gradient-to-r from-magenta to-cyan bg-clip-text text-transparent">
               Tu Pasión
             </span>
           </h1>
 
-          <p className="text-xl md:text-3xl text-cyan mb-10 max-w-2xl mx-auto animate-fade-in opacity-0 font-light tracking-wide drop-shadow-[0_0_10px_rgba(0,255,255,0.4)]" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+          <p className="text-xl md:text-2xl text-cyan mb-8 max-w-2xl mx-auto animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
             La tienda de Funko Pops más cool de Manizales
           </p>
 
-          <div className="flex gap-6 justify-center flex-wrap animate-fade-in opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <a href="#shop" className="px-10 py-4 bg-magenta text-white text-lg rounded-full font-bold shadow-[0_0_20px_rgba(255,0,110,0.4)] hover:scale-110 hover:shadow-[0_0_40px_rgba(255,0,110,0.8)] transition-all duration-300 border border-white/10">
+          <div className="flex gap-4 justify-center flex-wrap animate-fade-in opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+            <a href="#shop" className="px-8 py-3 bg-magenta text-white rounded-lg font-bold shadow-[0_0_20px_rgba(255,0,110,0.3)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,110,0.6)] transition-all">
               Ver Catálogo
-            </a>
-            <a href="#contact" className="px-10 py-4 bg-transparent border-2 border-cyan text-cyan text-lg rounded-full font-bold hover:bg-cyan hover:text-dark hover:shadow-[0_0_30px_rgba(0,255,255,0.6)] transition-all duration-300">
-              Contáctanos
             </a>
           </div>
         </div>
