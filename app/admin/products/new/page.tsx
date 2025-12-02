@@ -19,6 +19,7 @@ export default function NewProductPage() {
   const [stock, setStock] = useState<number | ''>(1);
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
+  const [isPreorder, setIsPreorder] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function NewProductPage() {
       formData.append('stock', String(stock));
       formData.append('category', category);
       formData.append('description', description);
+      formData.append('is_preorder', String(isPreorder));
       formData.append('template', 'default');
       formData.append('image', imageFile);
 
@@ -85,6 +87,7 @@ export default function NewProductPage() {
       setStock(1);
       setCategory('');
       setDescription('');
+      setIsPreorder(false);
       setImageFile(null);
       setPreviewUrl(null);
     } catch (error) {
@@ -189,6 +192,20 @@ export default function NewProductPage() {
                 style={inputStyle}
               />
             </div>
+          </div>
+
+          {/* Pre-order Checkbox */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id="isPreorder"
+              checked={isPreorder}
+              onChange={(e) => setIsPreorder(e.target.checked)}
+              style={{ width: '1.2rem', height: '1.2rem', cursor: 'pointer' }}
+            />
+            <label htmlFor="isPreorder" style={{ cursor: 'pointer', fontWeight: 'bold' }}>
+              Es Pre-orden (Permitir venta sin stock)
+            </label>
           </div>
 
           {/* Clasificación */}

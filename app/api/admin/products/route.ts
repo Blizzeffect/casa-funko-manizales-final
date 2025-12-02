@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     const stock = Number(formData.get('stock') || 0);
     const category = String(formData.get('category') || '');
     const description = String(formData.get('description') || '');
+    const isPreorder = formData.get('is_preorder') === 'true';
     const template = String(formData.get('template') || 'default');
 
     const file = formData.get('image') as File | null;
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
         description,
         image_url: publicUrl,
         template,
+        is_preorder: isPreorder,
       })
       .select()
       .single();

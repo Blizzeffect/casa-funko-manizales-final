@@ -98,8 +98,9 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
     }
 
     // Validate Customer Details
-    if (!customerDetails.name || !customerDetails.email || !customerDetails.phone || !customerDetails.address || !customerDetails.city || !customerDetails.department) {
-      alert('Por favor completa todos los datos de envío');
+    const isLocalPickup = selectedCourier.id === 'local_pickup';
+    if (!customerDetails.name || !customerDetails.email || !customerDetails.phone || (!isLocalPickup && !customerDetails.address) || (!isLocalPickup && !customerDetails.city)) {
+      alert('Por favor completa todos los datos requeridos');
       return;
     }
 
@@ -362,14 +363,17 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
                   </div>
                 )}
 
-                <input
-                  type="text"
-                  name="address"
-                  placeholder="Dirección Exacta (Calle, Carrera, #, Apto)"
-                  value={customerDetails.address}
-                  onChange={handleInputChange}
-                  className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
-                />
+                {/* Only show Address if NOT local pickup */}
+                {selectedCourier?.id !== 'local_pickup' && (
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder="Dirección Exacta (Calle, Carrera, #, Apto)"
+                    value={customerDetails.address}
+                    onChange={handleInputChange}
+                    className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+                  />
+                )}
               </div>
 
               {/* Courier Selection */}
