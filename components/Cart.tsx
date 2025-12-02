@@ -35,6 +35,14 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
   const [shippingLocation, setShippingLocation] = useState<ShippingLocation>(null);
   const [selectedCourier, setSelectedCourier] = useState<Courier | null>(null);
 
+  const [customerDetails, setCustomerDetails] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+  });
+
   const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.price, 0);
   const shippingCost = selectedCourier?.price || 0;
   const total = subtotal + shippingCost;
@@ -53,7 +61,9 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
   const hasOverStock = uniqueItemIds.some((id) => {
     const quantity = groupedItems[id].length;
     const stock = groupedItems[id][0].stock;
-    return quantity > stock;
+    // Allow overstock for pre-orders
+    const isPreorder = groupedItems[id][0].is_preorder;
+    return !isPreorder && quantity > stock;
   });
 
   const handleLocationChange = (location: ShippingLocation) => {
@@ -61,11 +71,22 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
     setSelectedCourier(null); // Reset courier when location changes
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCustomerDetails(prev => ({ ...prev, [name]: value }));
+  };
+
   async function createOrderAndPay() {
     if (items.length === 0) return;
     if (hasOverStock) return;
     if (!selectedCourier) {
       alert('Por favor selecciona un método de envío');
+      return;
+    }
+
+    // Validate Customer Details
+    if (!customerDetails.name || !customerDetails.email || !customerDetails.phone || !customerDetails.address || !customerDetails.city) {
+      alert('Por favor completa todos los datos de envío');
       return;
     }
 
@@ -100,6 +121,8 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
         total_amount: total,
         items: finalItems,
         status: 'pending',
+        courier: selectedCourier.name,
+        customer_details: customerDetails,
       },
     ]);
 
@@ -114,6 +137,10 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       body: JSON.stringify({
         reference,
         items: finalItems,
+        payer: {
+          name: customerDetails.name,
+          email: customerDetails.email,
+        }
       }),
     });
 
@@ -133,7 +160,7 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
         {items.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <div className="text-4xl mb-2">🛒</div>
@@ -144,7 +171,7 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
             const group = groupedItems[id];
             const item = group[0];
             const qty = group.length;
-            const outOfStock = qty > item.stock;
+            const outOfStock = !item.is_preorder && qty > item.stock;
 
             return (
               <div
@@ -172,15 +199,22 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
                       <span className="w-8 text-center text-sm font-bold">{qty}</span>
                       <button
                         onClick={() => onAddItem(item)}
-                        disabled={qty >= item.stock}
+                        disabled={!item.is_preorder && qty >= item.stock}
                         className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
                       >
                         +
                       </button>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      Stock: {item.stock}
-                    </span>
+                    {!item.is_preorder && (
+                      <span className="text-xs text-gray-500">
+                        Stock: {item.stock}
+                      </span>
+                    )}
+                    {item.is_preorder && (
+                      <span className="text-xs text-purple-400 font-bold">
+                        PRE-ORDEN
+                      </span>
+                    )}
                   </div>
 
                   {outOfStock && (
@@ -198,6 +232,55 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
       {items.length > 0 && (
         <div className="border-t border-gray-800 pt-6 space-y-6">
 
+          {/* Customer Details Form */}
+          <div className="bg-dark p-4 rounded-lg border border-gray-800 space-y-3">
+            <h4 className="font-bold text-white mb-1 flex items-center gap-2">
+              <span>👤</span> Datos de Envío
+            </h4>
+            <input
+              type="text"
+              name="name"
+              placeholder="Nombre Completo"
+              value={customerDetails.name}
+              onChange={handleInputChange}
+              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Correo Electrónico"
+              value={customerDetails.email}
+              onChange={handleInputChange}
+              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Teléfono / WhatsApp"
+              value={customerDetails.phone}
+              onChange={handleInputChange}
+              className="w-full bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                name="city"
+                placeholder="Ciudad"
+                value={customerDetails.city}
+                onChange={handleInputChange}
+                className="flex-1 bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+              />
+              <input
+                type="text"
+                name="address"
+                placeholder="Dirección Exacta"
+                value={customerDetails.address}
+                onChange={handleInputChange}
+                className="flex-[2] bg-dark-2 border border-gray-700 rounded p-2 text-sm text-white focus:border-magenta outline-none"
+              />
+            </div>
+          </div>
+
           {/* Shipping Section */}
           <div className="bg-dark p-4 rounded-lg border border-gray-800">
             <h4 className="font-bold text-white mb-3 flex items-center gap-2">
@@ -209,8 +292,8 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
               <button
                 onClick={() => handleLocationChange('manizales')}
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition ${shippingLocation === 'manizales'
-                    ? 'bg-cyan text-black'
-                    : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
+                  ? 'bg-cyan text-black'
+                  : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
                   }`}
               >
                 Manizales
@@ -218,8 +301,8 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
               <button
                 onClick={() => handleLocationChange('national')}
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition ${shippingLocation === 'national'
-                    ? 'bg-magenta text-white'
-                    : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
+                  ? 'bg-magenta text-white'
+                  : 'bg-dark-2 text-gray-400 hover:bg-gray-800'
                   }`}
               >
                 Nacional
@@ -233,8 +316,8 @@ export default function Cart({ items, onRemoveItem, onAddItem }: CartProps) {
                   <label
                     key={courier.id}
                     className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition ${selectedCourier?.id === courier.id
-                        ? 'border-white bg-white/5'
-                        : 'border-gray-800 hover:border-gray-600'
+                      ? 'border-white bg-white/5'
+                      : 'border-gray-800 hover:border-gray-600'
                       }`}
                   >
                     <div className="flex items-center gap-3">

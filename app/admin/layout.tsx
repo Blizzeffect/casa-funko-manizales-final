@@ -64,6 +64,14 @@ export default function AdminLayout({
                         <span className="text-xl group-hover:scale-110 transition">📝</span>
                         <span className="font-medium">Blog</span>
                     </Link>
+
+                    <Link
+                        href="/admin/tickets"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-blue-400 rounded-lg transition group"
+                    >
+                        <span className="text-xl group-hover:scale-110 transition">💬</span>
+                        <span className="font-medium">Soporte</span>
+                    </Link>
                 </nav>
 
                 <div className="p-4 border-t border-gray-800 space-y-2">

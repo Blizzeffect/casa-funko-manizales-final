@@ -32,6 +32,13 @@ export interface Order {
   status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
   tracking_number?: string;
   courier?: string;
+  customer_details?: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+  };
   created_at: string;
 }
 

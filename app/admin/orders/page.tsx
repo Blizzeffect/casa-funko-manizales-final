@@ -157,6 +157,22 @@ export default function OrdersAdminPage() {
                                 </div>
                             </div>
 
+                            {/* Customer Details */}
+                            {selectedOrder.customer_details && (
+                                <div className="space-y-3 pt-4 border-t border-gray-800">
+                                    <h3 className="text-sm font-bold text-cyan uppercase">Cliente</h3>
+                                    <div className="text-sm space-y-1">
+                                        <p className="text-white font-bold">{selectedOrder.customer_details.name}</p>
+                                        <p className="text-gray-400">{selectedOrder.customer_details.email}</p>
+                                        <p className="text-gray-400">{selectedOrder.customer_details.phone}</p>
+                                        <p className="text-gray-300 mt-2">
+                                            {selectedOrder.customer_details.address}<br />
+                                            {selectedOrder.customer_details.city}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Status Management */}
                             <div className="space-y-3 pt-4 border-t border-gray-800">
                                 <h3 className="text-sm font-bold text-cyan uppercase">Gestión</h3>
