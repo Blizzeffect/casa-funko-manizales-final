@@ -154,6 +154,9 @@ export default function Home() {
           <div className="hidden md:flex gap-8 items-center font-medium">
             <a href="/blog" className="text-gray-300 hover:text-cyan transition">Blog</a>
             <a href="#shop" className="text-cyan hover:text-white transition">Tienda</a>
+            <a href="/wishlist" className="text-gray-300 hover:text-magenta transition flex items-center gap-1">
+              <span>❤️</span> Favoritos
+            </a>
             <a href="#contact" className="text-gray-300 hover:text-cyan transition">Contacto</a>
           </div>
 

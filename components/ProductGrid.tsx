@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { env } from '@/lib/env';
 import { Product, CartItem } from '@/types';
+import WishlistButton from './WishlistButton';
 
 const TEMPLATE_BACKGROUND_URLS: Record<string, string> = {
   default: env.NEXT_PUBLIC_SUPABASE_STORAGE_URL,
@@ -43,6 +44,12 @@ export default function ProductGrid({ products, cartItems, onAddToCart, onRemove
                   filter: 'brightness(0.5)',
                 }}
               />
+
+              {/* Wishlist Button - Top Right */}
+              <div className="absolute top-2 right-2 z-30">
+                <WishlistButton product={product} />
+              </div>
+
               <div className="relative w-full h-full flex items-center justify-center p-4">
                 <Image
                   src={product.image_url}
@@ -54,7 +61,7 @@ export default function ProductGrid({ products, cartItems, onAddToCart, onRemove
               </div>
 
               {product.stock <= 1 && product.stock > 0 && (
-                <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg">
+                <div className="absolute top-2 left-2 bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg z-20">
                   ¡ÚLTIMO!
                 </div>
               )}
