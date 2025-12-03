@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { Product } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function ProductsAdminPage() {
+    const supabase = createClient();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -154,8 +155,8 @@ export default function ProductsAdminPage() {
                                     </td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 rounded-full text-xs border ${product.stock > 0
-                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                            : 'bg-red-500/10 text-red-500 border-red-500/20'
                                             }`}>
                                             {product.stock} un.
                                         </span>

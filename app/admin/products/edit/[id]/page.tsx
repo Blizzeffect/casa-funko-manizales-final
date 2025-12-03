@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent, use } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,6 +14,7 @@ const TEMPLATE_BACKGROUND_URLS: Record<string, string> = {
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
+    const supabase = createClient();
 
     const [loading, setLoading] = useState(true);
     const [imageFile, setImageFile] = useState<File | null>(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 
 interface Ticket {
     id: string;
@@ -13,6 +13,7 @@ interface Ticket {
 }
 
 export default function TicketsAdminPage() {
+    const supabase = createClient();
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(true);
 
