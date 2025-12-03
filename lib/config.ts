@@ -1,14 +1,14 @@
 export const siteConfig = {
-    name: 'Casa Funko Manizales',
-    description: 'Tu tienda de Funko Pops favorita en Manizales. Encuentra las mejores figuras coleccionables, ediciones limitadas y más.',
-    url: 'https://casa-funko-manizales.vercel.app', // Replace with actual URL
-    ogImage: 'https://casa-funko-manizales.vercel.app/og.jpg', // Replace with actual OG image URL
+    name: 'CasaPop',
+    description: 'Tu tienda de Funko Pops favorita. Encuentra las mejores figuras coleccionables, ediciones limitadas y más.',
+    url: 'https://casapop.co',
+    ogImage: 'https://casapop.co/og.jpg',
     links: {
-        twitter: 'https://twitter.com/casafunko',
-        instagram: 'https://instagram.com/casafunko',
+        twitter: 'https://twitter.com/casapop',
+        instagram: 'https://instagram.com/casapop',
     },
     contact: {
-        email: 'contacto@casafunko.com',
+        email: 'contacto@casapop.co',
         phone: '+57 300 123 4567',
         address: 'Manizales, Caldas, Colombia',
     },

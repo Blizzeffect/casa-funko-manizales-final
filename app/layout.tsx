@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ["Funko Pop", "Manizales", "Coleccionables", "Figuras", "Geek", "Anime", "Marvel", "DC"],
-  authors: [{ name: "Casa Funko Team" }],
-  creator: "Casa Funko Manizales",
+  keywords: ["Funko Pop", "CasaPop", "Coleccionables", "Figuras", "Geek", "Anime", "Marvel", "DC"],
+  authors: [{ name: "CasaPop Team" }],
+  creator: "CasaPop",
   openGraph: {
     type: "website",
     locale: "es_CO",

@@ -1,6 +1,7 @@
-# Casa Funko Manizales 🕹️👾
+# CasaPop
 
-Una plataforma de comercio electrónico moderna con estética **Vaporwave/Retro-Futurista** para la venta de figuras Funko Pop.
+Tu tienda de Funko Pops favorita. Encuentra las mejores figuras coleccionables, ediciones limitadas y más.
+**Vaporwave/Retro-Futurista** para la venta de figuras Funko Pop.
 
 ![Casa Funko Banner](/public/logo.png)
 
