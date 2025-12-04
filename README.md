@@ -3,7 +3,7 @@
 Tu tienda de Funko Pops favorita. Encuentra las mejores figuras coleccionables, ediciones limitadas y más.
 **Vaporwave/Retro-Futurista** para la venta de figuras Funko Pop.
 
-![Casa Funko Banner](/public/logo.png)
+![CasaPop Banner](/public/logo.png)
 
 ## 🚀 Características
 
@@ -46,8 +46,8 @@ Tu tienda de Funko Pops favorita. Encuentra las mejores figuras coleccionables, 
 
 1.  **Clonar el repositorio**:
     ```bash
-    git clone https://github.com/tu-usuario/casa-funko-manizales.git
-    cd casa-funko-manizales
+    git clone https://github.com/Blizzeffect/casapop.git
+    cd casapop
     ```
 
 2.  **Instalar dependencias**:
