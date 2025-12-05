@@ -6,6 +6,7 @@ import { Product, CartItem, Post } from '@/types';
 import Toast from '@/components/Toast';
 import Cart from '@/components/Cart';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function BlogPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -91,7 +92,7 @@ export default function BlogPage() {
                     {/* Menu Desktop */}
                     <div className="hidden md:flex gap-8 items-center font-medium">
                         <a href="#blog" className="text-gray-300 hover:text-cyan transition">Blog</a>
-                        <a href="#shop" className="text-gray-300 hover:text-cyan transition">Tienda</a>
+                        <Link href="/#shop" className="text-gray-300 hover:text-cyan transition">Tienda</Link>
                         {/* <a href="#gallery" className="text-gray-300 hover:text-cyan transition">Galería</a> */}
                         <a href="/support" className="text-gray-300 hover:text-cyan transition">Contacto</a>
                     </div>
@@ -120,7 +121,7 @@ export default function BlogPage() {
                 {mobileMenuOpen && (
                     <div className="md:hidden bg-dark-2 border-t border-cyan/20 animate-slide-down">
                         <a href="#blog" className="block px-4 py-3 text-gray-300 hover:bg-dark" onClick={() => setMobileMenuOpen(false)}>Blog</a>
-                        <a href="#shop" className="block px-4 py-3 text-gray-300 hover:bg-dark" onClick={() => setMobileMenuOpen(false)}>Tienda</a>
+                        <Link href="/#shop" className="block px-4 py-3 text-gray-300 hover:bg-dark" onClick={() => setMobileMenuOpen(false)}>Tienda</Link>
                         <a href="#gallery" className="block px-4 py-3 text-gray-300 hover:bg-dark" onClick={() => setMobileMenuOpen(false)}>Galería</a>
                         <a href="#contact" className="block px-4 py-3 text-gray-300 hover:bg-dark" onClick={() => setMobileMenuOpen(false)}>Contacto</a>
                         <button
@@ -216,7 +217,7 @@ export default function BlogPage() {
 
                         {posts.length > 0 ? (
                             posts.map((post) => (
-                                <div key={post.id} className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group">
+                                <Link href={`/blog/${post.slug}`} key={post.id} className="bg-dark-2 rounded-xl p-6 shadow-lg hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,0,110,0.2)] transition-all cursor-pointer group block">
                                     <div className="relative h-48 mb-4 overflow-hidden rounded-lg bg-dark">
                                         {post.image_url ? (
                                             <Image
@@ -244,10 +245,10 @@ export default function BlogPage() {
                                         <span>⏱️ {post.reading_time}</span>
                                         <time>{new Date(post.published_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}</time>
                                     </div>
-                                    <a href={`/blog/${post.slug}`} className="text-magenta font-bold group-hover:text-cyan transition-colors">
+                                    <span className="text-magenta font-bold group-hover:text-cyan transition-colors">
                                         → Leer Artículo
-                                    </a>
-                                </div>
+                                    </span>
+                                </Link>
                             ))
                         ) : (
                             <div className="col-span-3 text-center text-gray-500 py-12">
