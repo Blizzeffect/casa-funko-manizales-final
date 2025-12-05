@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
+    const supabase = createClient();
     const { id } = use(params);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
