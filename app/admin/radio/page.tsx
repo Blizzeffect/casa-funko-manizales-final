@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { deleteTrack, uploadTrack } from '@/lib/actions/radio';
+import { deleteTrack } from '@/lib/actions/radio';
+import RadioUploadForm from '@/components/RadioUploadForm';
 
 export const metadata = {
     title: 'Gestor de Radio Aesthetic',
@@ -26,52 +27,7 @@ export default async function AdminRadioPage() {
                     <span>💾</span> Subir Nueva Pista
                 </h2>
 
-                <form action={async (formData) => {
-                    'use server';
-                    await uploadTrack(formData);
-                }} className="space-y-6 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-gray-400 mb-2 text-sm uppercase tracking-wider">Título de la Canción</label>
-                            <input
-                                type="text"
-                                name="title"
-                                required
-                                placeholder="Ej: Midnight City"
-                                className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan focus:shadow-[0_0_15px_rgba(0,245,255,0.3)] transition outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 mb-2 text-sm uppercase tracking-wider">Artista (Opcional)</label>
-                            <input
-                                type="text"
-                                name="artist"
-                                placeholder="Ej: M83"
-                                className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-magenta focus:shadow-[0_0_15px_rgba(255,0,110,0.3)] transition outline-none"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center hover:border-cyan/50 hover:bg-cyan/5 transition cursor-pointer relative group/file">
-                        <input
-                            type="file"
-                            name="file"
-                            accept="audio/*"
-                            required
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                        />
-                        <div className="text-4xl mb-3 group-hover/file:scale-110 transition-transform">🎵</div>
-                        <p className="text-gray-300 font-medium">Arrastra tu archivo aquí o haz clic para seleccionar</p>
-                        <p className="text-gray-500 text-sm mt-2">Formatos: MP3, WAV, AAC (Max 10MB)</p>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full py-4 bg-gradient-to-r from-cyan to-magenta text-white font-bold rounded-xl text-lg hover:brightness-110 hover:scale-[1.01] transition shadow-lg"
-                    >
-                        Subir a la Onda 🌊
-                    </button>
-                </form>
+                <RadioUploadForm />
             </div>
 
             {/* Tracks List */}
@@ -84,8 +40,12 @@ export default async function AdminRadioPage() {
                     {tracks?.map((track) => (
                         <div key={track.id} className="flex items-center justify-between p-4 bg-black/40 rounded-lg border border-gray-800 hover:border-magenta/30 transition group">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-black rounded-full flex items-center justify-center text-gray-500 group-hover:text-cyan transition">
-                                    ▶️
+                                <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-black rounded-full flex items-center justify-center text-gray-500 group-hover:text-cyan transition overflow-hidden">
+                                    {track.image_url ? (
+                                        <img src={track.image_url} alt={track.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span>▶️</span>
+                                    )}
                                 </div>
                                 <div>
                                     <div className="text-white font-bold">{track.title}</div>

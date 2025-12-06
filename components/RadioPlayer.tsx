@@ -7,6 +7,7 @@ type Track = {
     title: string;
     artist: string;
     file_url: string;
+    image_url?: string | null;
 };
 
 export default function RadioPlayer({ tracks }: { tracks: Track[] }) {
@@ -67,14 +68,27 @@ export default function RadioPlayer({ tracks }: { tracks: Track[] }) {
             <div className="flex flex-col md:flex-row gap-6 items-center">
                 {/* Visualizer / Album Art Placeholder */}
                 <div className="w-24 h-24 bg-black rounded-lg border border-gray-700 flex items-center justify-center relative overflow-hidden group">
-                    <div className={`absolute inset-0 bg-gradient-to-tr from-cyan/20 to-magenta/20 ${isPlaying ? 'animate-spin-slow' : ''}`} />
-                    <div className="text-4xl relative z-10 group-hover:scale-110 transition">📻</div>
+                    {currentTrack.image_url ? (
+                        <>
+                            <img
+                                src={currentTrack.image_url}
+                                alt={currentTrack.title}
+                                className={`absolute inset-0 w-full h-full object-cover ${isPlaying ? 'animate-spin-slow' : ''}`}
+                            />
+                            {/* Overlay darkens image slightly when visuals play */}
+                            {isPlaying && <div className="absolute inset-0 bg-black/30" />}
+                        </>
+                    ) : (
+                        <div className={`absolute inset-0 bg-gradient-to-tr from-cyan/20 to-magenta/20 ${isPlaying ? 'animate-spin-slow' : ''}`} />
+                    )}
 
-                    {/* Fake Visualizer */}
+                    {!currentTrack.image_url && <div className="text-4xl relative z-10 group-hover:scale-110 transition">📻</div>}
+
+                    {/* Visualizer */}
                     {isPlaying && (
-                        <div className="absolute bottom-1 left-0 right-0 flex justify-center items-end gap-[2px] h-8 px-2">
+                        <div className="absolute bottom-1 left-0 right-0 flex justify-center items-end gap-[2px] h-8 px-2 z-20">
                             {[...Array(5)].map((_, i) => (
-                                <div key={i} className="w-2 bg-cyan/80 animate-music-bar" style={{ animationDelay: `${i * 0.1}s`, height: '50%' }} />
+                                <div key={i} className="w-2 bg-cyan/80 animate-music-bar shadow-[0_0_5px_cyan]" style={{ animationDelay: `${i * 0.1}s`, height: '50%' }} />
                             ))}
                         </div>
                     )}
