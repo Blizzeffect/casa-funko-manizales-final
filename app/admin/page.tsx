@@ -46,6 +46,19 @@ export default function AdminDashboard() {
                     <h2 className="text-2xl font-bold text-white mb-2">Blog</h2>
                     <p className="text-gray-400">Crea y edita artículos para mantener a tu comunidad informada.</p>
                 </Link>
+
+                {/* Community Card */}
+                <Link
+                    href="/admin/chat"
+                    className="group p-8 bg-dark-2 border border-gray-800 rounded-2xl hover:border-purple-400/50 transition shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]"
+                >
+                    <div className="flex justify-between items-start mb-4">
+                        <span className="text-4xl bg-purple-400/10 p-3 rounded-xl border border-purple-400/20">💬</span>
+                        <span className="text-gray-500 group-hover:text-purple-400 transition">Ver todo →</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Comunidad</h2>
+                    <p className="text-gray-400">Modera los mensajes del chat y mantén el orden.</p>
+                </Link>
             </div>
         </div>
     );

@@ -66,10 +66,18 @@ export default function AdminLayout({
                     </Link>
 
                     <Link
+                        href="/admin/chat"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-purple-400 rounded-lg transition group"
+                    >
+                        <span className="text-xl group-hover:scale-110 transition">💬</span>
+                        <span className="font-medium">Comunidad</span>
+                    </Link>
+
+                    <Link
                         href="/admin/tickets"
                         className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-blue-400 rounded-lg transition group"
                     >
-                        <span className="text-xl group-hover:scale-110 transition">💬</span>
+                        <span className="text-xl group-hover:scale-110 transition">🎫</span>
                         <span className="font-medium">Soporte</span>
                     </Link>
                 </nav>
