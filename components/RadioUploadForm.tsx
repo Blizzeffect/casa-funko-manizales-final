@@ -1,10 +1,12 @@
 'use client';
 
-import { uploadTrack } from '@/lib/actions/radio';
+import { saveTrack } from '@/lib/actions/radio';
+import { createClient } from '@/utils/supabase/client';
 import { useState, useRef } from 'react';
 
 export default function RadioUploadForm() {
     const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState(''); // e.g., "Subiendo audio...", "Guardando..."
     const formRef = useRef<HTMLFormElement>(null);
     const [dragActive, setDragActive] = useState(false);
 
@@ -24,12 +26,6 @@ export default function RadioUploadForm() {
         setDragActive(false);
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            // Basic handling: we can't easily set file input value programmatically for security
-            // But we can use this for visual feedback or advanced uploads. 
-            // For simplicity in this server action setup, let's rely on the click-to-select 
-            // or standard file input behavior, but just highlight that it works.
-            // Actually, to make drag/drop work with native form submission, we'd need to manually 
-            // attach the file to the input ref.
             const fileInput = formRef.current?.querySelector('input[name="file"]') as HTMLInputElement;
             if (fileInput) {
                 fileInput.files = e.dataTransfer.files;
@@ -37,20 +33,87 @@ export default function RadioUploadForm() {
         }
     };
 
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (isUploading) return;
+
+        setIsUploading(true);
+        setUploadStatus('Iniciando carga... 🚀');
+
+        const formData = new FormData(e.currentTarget);
+        const title = formData.get('title') as string;
+        const artist = formData.get('artist') as string;
+        const file = formData.get('file') as File;
+        const image = formData.get('image') as File;
+
+        if (!file || file.size === 0) {
+            alert('Por favor selecciona un archivo de audio');
+            setIsUploading(false);
+            return;
+        }
+
+        const supabase = createClient();
+
+        try {
+            // 1. Upload Audio
+            setUploadStatus('Subiendo audio (esto puede tardar)... 🎵');
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `tracks/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('radio_music')
+                .upload(filePath, file);
+
+            if (uploadError) throw new Error('Error subiendo audio: ' + uploadError.message);
+
+            const { data: publicUrlData } = supabase.storage
+                .from('radio_music')
+                .getPublicUrl(filePath);
+            const fileUrl = publicUrlData.publicUrl;
+
+            // 2. Upload Image (Optional)
+            let imageUrl = null;
+            if (image && image.size > 0) {
+                setUploadStatus('Subiendo portada... 🖼️');
+                const imgExt = image.name.split('.').pop();
+                const imgName = `art_${Date.now()}_${Math.random().toString(36).substring(7)}.${imgExt}`;
+                const imgPath = `art/${imgName}`;
+
+                const { error: imgUploadError } = await supabase.storage
+                    .from('radio_music')
+                    .upload(imgPath, image);
+
+                if (imgUploadError) throw new Error('Error subiendo imagen: ' + imgUploadError.message);
+
+                const { data: imgUrlData } = supabase.storage
+                    .from('radio_music')
+                    .getPublicUrl(imgPath);
+                imageUrl = imgUrlData.publicUrl;
+            }
+
+            // 3. Save Record
+            setUploadStatus('Guardando en base de datos... 💾');
+            const result = await saveTrack(title, artist, fileUrl, imageUrl);
+
+            if (result.error) throw new Error(result.error);
+
+            alert('¡Pista subida con éxito! 🎵');
+            formRef.current?.reset();
+
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message || 'Error desconocido');
+        } finally {
+            setIsUploading(false);
+            setUploadStatus('');
+        }
+    };
+
     return (
         <form
             ref={formRef}
-            action={async (formData) => {
-                setIsUploading(true);
-                const result = await uploadTrack(formData);
-                setIsUploading(false);
-                if (result?.success) {
-                    alert('¡Pista subida con éxito! 🎵');
-                    formRef.current?.reset();
-                } else if (result?.error) {
-                    alert(result.error);
-                }
-            }}
+            onSubmit={handleSubmit}
             className="space-y-6 relative z-10"
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -120,7 +183,7 @@ export default function RadioUploadForm() {
                 disabled={isUploading}
                 className="w-full py-4 bg-gradient-to-r from-cyan to-magenta text-white font-bold rounded-xl text-lg hover:brightness-110 hover:scale-[1.01] transition shadow-lg disabled:opacity-50 disabled:cursor-wait"
             >
-                {isUploading ? 'Subiendo a la nube... ☁️' : 'Subir a la Onda 🌊'}
+                {isUploading ? uploadStatus : 'Subir a la Onda 🌊'}
             </button>
         </form>
     );
