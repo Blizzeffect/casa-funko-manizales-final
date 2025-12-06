@@ -74,6 +74,14 @@ export default function AdminLayout({
                     </Link>
 
                     <Link
+                        href="/admin/radio"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-cyan rounded-lg transition group"
+                    >
+                        <span className="text-xl group-hover:scale-110 transition">📻</span>
+                        <span className="font-medium">Radio</span>
+                    </Link>
+
+                    <Link
                         href="/admin/tickets"
                         className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5 hover:text-blue-400 rounded-lg transition group"
                     >
